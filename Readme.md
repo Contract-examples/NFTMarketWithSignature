@@ -71,7 +71,8 @@ forge script script/DeployMyERC20Token.s.sol:DeployMyERC20TokenScript --rpc-url 
 ```
 ## Deploy result
 ```
-MyERC20Token address: https://sepolia.arbiscan.io/address/0x0f5011654af81e582bf7358c16515f18a0cbbbc9
+https://sepolia.arbiscan.io/address/0x54f0bcb385f758e38ebb3e5085abab3db1cf3153
+MyERC20Token address: 0x54f0bcb385f758e38ebb3e5085abab3db1cf3153
 ```
 
 
