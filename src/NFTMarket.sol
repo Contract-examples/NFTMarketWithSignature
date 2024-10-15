@@ -3,14 +3,9 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./MyERC20Token.sol";
 
-// ReentrancyGuard: reentrancy guard
-contract NFTMarket is ReentrancyGuard {
-    using SafeERC20 for IERC20;
-
+contract NFTMarket {
     struct Listing {
         address seller;
         uint256 price;
@@ -48,14 +43,14 @@ contract NFTMarket is ReentrancyGuard {
         emit NFTUnlisted(tokenId);
     }
 
-    function buyNFT(uint256 tokenId) external nonReentrant {
+    function buyNFT(uint256 tokenId) external {
         Listing memory listing = listings[tokenId];
         require(listing.price > 0, "NFT not listed");
 
         delete listings[tokenId];
 
         // transfer the payment token to the seller
-        paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
+        require(paymentToken.transferFrom(msg.sender, listing.seller, listing.price), "Token transfer failed");
 
         // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, msg.sender, tokenId);
@@ -86,14 +81,14 @@ contract NFTMarket is ReentrancyGuard {
         delete listings[tokenId];
 
         // transfer the payment token to the seller
-        paymentToken.safeTransfer(listing.seller, listing.price);
+        require(paymentToken.transfer(listing.seller, listing.price), "Token transfer failed");
 
         // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, from, tokenId);
 
         // if the buyer paid more than the price, refund the extra
         if (amount > listing.price) {
-            paymentToken.safeTransfer(from, amount - listing.price);
+            require(paymentToken.transfer(from, amount - listing.price), "Refund transfer failed");
         }
 
         emit NFTSold(tokenId, listing.seller, from, listing.price);

@@ -2,9 +2,6 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface ITokenReceiver {
     function tokensReceived(
@@ -18,31 +15,28 @@ interface ITokenReceiver {
         external;
 }
 
-// ERC20Burnable: burnable token
-// Pausable: pausable token
-// Ownable: only owner can mint and burn
-contract MyERC20Token is ERC20, ERC20Burnable, Ownable {
+contract MyERC20Token is ERC20 {
     constructor() ERC20("MyNFTToken", "MTK") {
-        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+        _mint(msg.sender, 1000 * 10 ** decimals());
     }
 
-    // only owner can pause
-    function pause() public onlyOwner {
-        _pause();
+    function _isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
     }
 
-    // only owner can unpause
-    function unpause() public onlyOwner {
-        _unpause();
-    }
+    // when tokens are transferred, call the tokensReceived function on the receiver
+    function _update(address from, address to, uint256 amount) internal override {
+        super._update(from, to, amount);
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
-        super._beforeTokenTransfer(from, to, amount);
-    }
-
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal override {
-        super._afterTokenTransfer(from, to, amount);
-        if (to != address(0)) {
+        // if the receiver is a contract, call the tokensReceived function
+        if (_isContract(to)) {
             try ITokenReceiver(to).tokensReceived(msg.sender, from, to, amount, "", "") { } catch { }
         }
     }
