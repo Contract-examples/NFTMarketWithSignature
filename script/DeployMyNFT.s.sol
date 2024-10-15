@@ -7,7 +7,7 @@ import "../src/MyNFT.sol";
 
 contract DeployMyNFT is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("WALLET_PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
 
         vm.startBroadcast(deployerPrivateKey);
