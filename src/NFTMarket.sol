@@ -29,7 +29,7 @@ contract NFTMarket {
     // this is our NFT contract
     IERC721 public immutable nftContract;
 
-    // this is our listing mapping
+    // this is our listing mapping [tokenId => Listing]
     mapping(uint256 => Listing) public listings;
 
     // this is our event for when an NFT is listed

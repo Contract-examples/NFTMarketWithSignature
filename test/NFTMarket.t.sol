@@ -221,9 +221,14 @@ contract NFTMarketTest is Test {
         vm.startPrank(buyer);
         bytes memory data = abi.encode(tokenId);
 
-        // use
+        // use paymentToken to get nft
         paymentToken.transferAndCall(address(market), price, data);
         vm.stopPrank();
+        
+        console2.log("nftContract.ownerOf(tokenId):", nftContract.ownerOf(tokenId));
+        console2.log("buyer:", buyer);
+        console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
+        console2.log("price:", price);  
 
         assertEq(nftContract.ownerOf(tokenId), buyer);
         assertEq(paymentToken.balanceOf(seller), price);
