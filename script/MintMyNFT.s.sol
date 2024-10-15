@@ -14,7 +14,7 @@ contract MintMyNFT is Script {
         MyNFT nft = MyNFT(nftAddress);
 
         // replace with your metadata URI
-        string memory metadataURI = "https://ipfs.io/ipfs/QmNv6Br4XyKsPLTexFYSv9dvGkRnxqqkJgxcLTW9rb94e6";
+        string memory metadataURI = "https://ipfs.io/ipfs/QmZFCuv8NKTAhaNTXx9X6iXnUkgdpbNJAhBHvEUZHzJnmf";
 
         vm.startBroadcast(deployerPrivateKey);
 
