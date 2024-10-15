@@ -86,11 +86,59 @@ forge script script/DeployNFTMarket.s.sol:DeployNFTMarket --rpc-url arbitrum_sep
 
 ## Deploy result
 ```
-https://sepolia.arbiscan.io/address/0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
-NFTMarket addresas: 0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
+https://sepolia.arbiscan.io/address/0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F
+NFTMarket addresas: 0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F
 ```
 
+## Mint NFT
+```
+forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## Mint result
+```
+https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/3
+```
 
+## List NFT on NFT market
+```
+forge script script/ListNFTOnMarket.s.sol:ListNFTOnMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "List NFT on NFT market"
+```
+txhash: https://sepolia.arbiscan.io/tx/0x42a323eb877e31f69e79caa80159bb858605efe1d592cb78e10e713d4656e444
+```
 
+## Query NFT market
+```
+forge script script/QueryNFTMarket.s.sol:QueryNFTMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "Query NFT market"
+```
+== Logs ==
+  NFTs listed on the market:
+  ----------------------------
+  Token ID: 0
+  Price: 100000000000000000000
+  Seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+  Current Owner: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+```
 
+## Buy NFT on NFT market
+```
+forge script script/BuyNFTAndQueryMarket.s.sol:BuyNFTAndQueryMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "Buy NFT on NFT market"
+```
+== Logs ==
+  NFT seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+  NFT price: 100000000000000000000
+  NFT purchased:
+  Buyer: 0xe091701aC9816D38241887147B41AE312d26e1C3
+  Token ID: 0
+  Price paid: 100000000000000000000
+Current NFT Market status:
+  ----------------------------
+txhash: https://sepolia.arbiscan.io/tx/0x1b4f1d283970329d0a410b111a6c3114b55e44614e3c1e006588cc776fd812e8
+opensea: https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/0
+```
 
