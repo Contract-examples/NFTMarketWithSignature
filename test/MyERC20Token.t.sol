@@ -56,8 +56,7 @@ contract TokenReceiverTest is ITokenReceiver {
         address from,
         address to,
         uint256 amount,
-        bytes calldata userData,
-        bytes calldata operatorData
+        bytes calldata userData
     )
         external
         override

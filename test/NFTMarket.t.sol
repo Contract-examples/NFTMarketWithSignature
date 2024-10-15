@@ -36,8 +36,10 @@ contract NFTMarketTest is Test {
         buyer2 = address(0x5);
         buyer3 = address(0x6);
 
-        // give buyer 1000 tokens
+        // give buyer/buyer2/buyer3 1000 tokens
         paymentToken.mint(buyer, 1000 * 10 ** paymentToken.decimals());
+        paymentToken.mint(buyer2, 1000 * 10 ** paymentToken.decimals());
+        paymentToken.mint(buyer3, 1000 * 10 ** paymentToken.decimals());
 
         // mock owner
         vm.prank(owner);
@@ -150,58 +152,104 @@ contract NFTMarketTest is Test {
         }
     }
 
-    // function testBuyNFT() public {
-    //     uint256 price = 100 * 10 ** paymentToken.decimals();
+    function testBuyNFT() public {
+        uint256 price = 200 * 10 ** paymentToken.decimals();
 
-    //     vm.startPrank(seller);
-    //     nftContract.approve(address(market), tokenId);
+        vm.startPrank(seller);
 
-    //     // list nft
-    //     market.list(tokenId, price);
-    //     vm.stopPrank();
+        // seller's nft tokenId is 0
+        tokenId = 0;
 
-    //     // buyer buy nft
-    //     vm.startPrank(buyer);
-    //     paymentToken.approve(address(market), price);
-    //     market.buyNFT(tokenId);
-    //     vm.stopPrank();
+        nftContract.approve(address(market), tokenId);
 
-    //     assertEq(nftContract.ownerOf(tokenId), buyer);
-    //     assertEq(paymentToken.balanceOf(seller), price);
-    // }
+        // list nft
+        market.list(tokenId, price);
+        vm.stopPrank();
 
-    // function testUnlistNFT() public {
-    //     uint256 price = 100 * 10 ** paymentToken.decimals();
+        // buyer buy nft
+        vm.startPrank(buyer);
+        paymentToken.approve(address(market), price);
+        market.buyNFT(tokenId);
+        vm.stopPrank();
 
-    //     vm.startPrank(seller);
-    //     nftContract.approve(address(market), tokenId);
-    //     // list nft
-    //     market.list(tokenId, price);
-    //     // unlist nft
-    //     market.unlist(tokenId);
-    //     vm.stopPrank();
+        console2.log("nftContract.ownerOf(tokenId):", nftContract.ownerOf(tokenId));
+        console2.log("buyer:", buyer);
+        console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
+        console2.log("price:", price);
 
-    //     (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-    //     assertEq(listedSeller, address(0));
-    //     assertEq(listedPrice, 0);
-    // }
+        assertEq(nftContract.ownerOf(tokenId), buyer);
+        assertEq(paymentToken.balanceOf(seller), price);
+    }
 
-    // function testTokensReceivedHook() public {
-    //     uint256 price = 100 * 10 ** paymentToken.decimals();
+    function testUnlistNFT() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
 
-    //     // list nft
-    //     vm.startPrank(seller);
-    //     nftContract.approve(address(market), tokenId);
-    //     market.list(tokenId, price);
-    //     vm.stopPrank();
+        // seller's nft tokenId is 0
+        tokenId = 0;
 
-    //     // buyer transfer to market contract
-    //     vm.startPrank(buyer);
-    //     bytes memory data = abi.encode(tokenId);
-    //     paymentToken.transferAndCall(address(market), price, data);
-    //     vm.stopPrank();
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
 
-    //     assertEq(nftContract.ownerOf(tokenId), buyer);
-    //     assertEq(paymentToken.balanceOf(seller), price);
-    // }
+        // list nft
+        market.list(tokenId, price);
+
+        // unlist nft
+        market.unlist(tokenId);
+
+        vm.stopPrank();
+
+        (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
+        console2.log("listedSeller:", listedSeller);
+        console2.log("listedPrice:", listedPrice);
+        assertEq(listedSeller, address(0));
+        assertEq(listedPrice, 0);
+    }
+
+    function testTokensReceivedHook() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // list nft
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer transfer to market contract
+        vm.startPrank(buyer);
+        bytes memory data = abi.encode(tokenId);
+
+        // use
+        paymentToken.transferAndCall(address(market), price, data);
+        vm.stopPrank();
+
+        assertEq(nftContract.ownerOf(tokenId), buyer);
+        assertEq(paymentToken.balanceOf(seller), price);
+    }
+
+    function testTokensReceivedHook2() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // list nft
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer transfer to market contract
+        vm.startPrank(buyer);
+        bytes memory data = abi.encode(tokenId);
+
+        // use
+        paymentToken.transfer(address(market), price, data);
+        vm.stopPrank();
+
+        assertEq(nftContract.ownerOf(tokenId), buyer);
+        assertEq(paymentToken.balanceOf(seller), price);
+    }
 }
