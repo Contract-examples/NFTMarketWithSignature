@@ -31,7 +31,7 @@ contract MyERC20TokenTest is Test {
     }
 
     function testTokensReceivedHook() public {
-        TokenReceiverTest receiver = new TokenReceiverTest();
+        NFTCallbackTest receiver = new NFTCallbackTest();
         console2.log("receiver", address(receiver));
 
         uint256 amount = 100 * 10 ** token.decimals();
@@ -50,25 +50,25 @@ contract MyERC20TokenTest is Test {
     }
 }
 
-// Mock contract to test tokensReceived hook
-contract TokenReceiverTest is INFTCallback {
+// Mock contract to test NFTCallbackTest hook
+contract NFTCallbackTest is INFTCallback {
     bool public receivedTokens;
     uint256 public lastAmount;
 
     function buyNFTCallback(address from, address to, uint256 amount, bytes calldata userData) external override {
         receivedTokens = true;
         lastAmount = amount;
-        console2.log("TokenReceiverTest: msg.sender", msg.sender);
-        console2.log("TokenReceiverTest: from", from);
-        console2.log("TokenReceiverTest: to", to);
-        console2.log("TokenReceiverTest: amount", amount);
+        console2.log("NFTCallbackTest: msg.sender", msg.sender);
+        console2.log("NFTCallbackTest: from", from);
+        console2.log("NFTCallbackTest: to", to);
+        console2.log("NFTCallbackTest: amount", amount);
 
         // decode userData to get tokenId
         if (userData.length > 0) {
             uint256 tokenId = abi.decode(userData, (uint256));
-            console2.log("TokenReceiverTest: tokenId", tokenId);
+            console2.log("NFTCallbackTest: tokenId", tokenId);
         } else {
-            console2.log("TokenReceiverTest: no tokenId");
+            console2.log("NFTCallbackTest: no tokenId");
         }
     }
 }

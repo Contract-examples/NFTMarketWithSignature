@@ -205,7 +205,7 @@ contract NFTMarketTest is Test {
         assertEq(listedPrice, 0);
     }
 
-    function testTokensReceivedHook() public {
+    function testBuyNFTCallback() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
         // seller's nft tokenId is 0
