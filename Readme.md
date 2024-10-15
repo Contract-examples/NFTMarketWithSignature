@@ -103,4 +103,7 @@ https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3
 ```
 forge script script/ListNFTOnMarket.s.sol:ListNFTOnMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
 ```
-
+## result of "List NFT on NFT market"
+```
+txhash: https://sepolia.arbiscan.io/tx/0x42a323eb877e31f69e79caa80159bb858605efe1d592cb78e10e713d4656e444
+```
