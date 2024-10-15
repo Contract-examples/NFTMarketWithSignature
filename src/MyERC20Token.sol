@@ -2,12 +2,17 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ITokenReceiver.sol";
 
-contract MyERC20Token is ERC20 {
-    constructor() ERC20("MyNFTToken", "MTK") {
+contract MyERC20Token is ERC20, Ownable {
+    constructor() ERC20("MyNFTToken", "MTK") Ownable(msg.sender) {
         // mint 1000 nfts to the owner
         _mint(msg.sender, 1000 * 10 ** decimals());
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
     }
 
     // this is a helper function to check if the recipient is a contract
@@ -28,5 +33,13 @@ contract MyERC20Token is ERC20 {
         if (_isContract(to)) {
             try ITokenReceiver(to).tokensReceived(msg.sender, from, to, amount, "", "") { } catch { }
         }
+    }
+
+    function transferAndCall(address to, uint256 amount, bytes memory data) public returns (bool) {
+        bool success = transfer(to, amount);
+        if (success && _isContract(to)) {
+            try ITokenReceiver(to).tokensReceived(msg.sender, msg.sender, to, amount, data, "") { } catch { }
+        }
+        return success;
     }
 }

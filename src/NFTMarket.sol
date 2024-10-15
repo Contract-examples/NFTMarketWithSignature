@@ -166,4 +166,3 @@ contract NFTMarket {
         emit NFTSold(tokenId, listing.seller, from, listing.price);
     }
 }
-
