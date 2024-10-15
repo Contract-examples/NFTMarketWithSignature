@@ -41,7 +41,7 @@ contract MyERC20TokenTest is Test {
         vm.prank(user1);
 
         // test with tokenId
-        uint256 tokenId = 111;    
+        uint256 tokenId = 111;
         bytes memory data = abi.encode(tokenId);
         token.transferAndCall(address(receiver), amount, data);
 
