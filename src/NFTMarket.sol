@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./MyERC20Token.sol";
 
+// ReentrancyGuard: reentrancy guard
 contract NFTMarket is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -31,7 +32,10 @@ contract NFTMarket is ReentrancyGuard {
 
     function list(uint256 tokenId, uint256 price) external {
         require(nftContract.ownerOf(tokenId) == msg.sender, "Not the owner");
-        require(nftContract.getApproved(tokenId) == address(this) || nftContract.isApprovedForAll(msg.sender, address(this)), "NFT not approved");
+        require(
+            nftContract.getApproved(tokenId) == address(this) || nftContract.isApprovedForAll(msg.sender, address(this)),
+            "NFT not approved"
+        );
         require(price > 0, "Price must be greater than zero");
 
         listings[tokenId] = Listing(msg.sender, price);
@@ -50,7 +54,10 @@ contract NFTMarket is ReentrancyGuard {
 
         delete listings[tokenId];
 
+        // transfer the payment token to the seller
         paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
+
+        // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, msg.sender, tokenId);
 
         emit NFTSold(tokenId, listing.seller, msg.sender, listing.price);
@@ -63,11 +70,13 @@ contract NFTMarket is ReentrancyGuard {
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external {
+    )
+        external
+    {
         require(msg.sender == address(paymentToken), "Invalid token");
         require(to == address(this), "Invalid recipient");
 
-        // 解码userData以获取tokenId
+        // decode userData to get tokenId
         uint256 tokenId = abi.decode(userData, (uint256));
 
         Listing memory listing = listings[tokenId];
@@ -76,13 +85,13 @@ contract NFTMarket is ReentrancyGuard {
 
         delete listings[tokenId];
 
-        // 将代币转给卖家
+        // transfer the payment token to the seller
         paymentToken.safeTransfer(listing.seller, listing.price);
 
-        // 将NFT转给买家
+        // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, from, tokenId);
 
-        // 如果支付了超过价格的代币,退还多余的部分
+        // if the buyer paid more than the price, refund the extra
         if (amount > listing.price) {
             paymentToken.safeTransfer(from, amount - listing.price);
         }

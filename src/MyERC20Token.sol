@@ -14,48 +14,36 @@ interface ITokenReceiver {
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external;
+    )
+        external;
 }
 
-contract MyERC20Token is ERC20, ERC20Burnable, Pausable, Ownable {
+// ERC20Burnable: burnable token
+// Pausable: pausable token
+// Ownable: only owner can mint and burn
+contract MyERC20Token is ERC20, ERC20Burnable, Ownable {
     constructor() ERC20("MyNFTToken", "MTK") {
-        _mint(msg.sender, 1000000 * 10 ** decimals());
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
 
+    // only owner can pause
     function pause() public onlyOwner {
         _pause();
     }
 
+    // only owner can unpause
     function unpause() public onlyOwner {
         _unpause();
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
-
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal
-        whenNotPaused
-        override
-    {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override
-    {
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal override {
         super._afterTokenTransfer(from, to, amount);
         if (to != address(0)) {
-            try ITokenReceiver(to).tokensReceived(
-                msg.sender,
-                from,
-                to,
-                amount,
-                "",
-                ""
-            ) {} catch {}
+            try ITokenReceiver(to).tokensReceived(msg.sender, from, to, amount, "", "") { } catch { }
         }
     }
 }
