@@ -1,0 +1,14 @@
+{ 
+  "description": "This NFT proves I've created and deployed my first ERC20 smart contract on sepolia testnet",
+  "external_url": "https://github.com/gmh5225",
+  "image": "https://ipfs.io/ipfs/QmZPnj5BcL4amGR32hKnSoWqvfbU8PUJ6t4wZRAUV57eyW",
+  "name": "ERC 20 MyNft", 
+  "attributes": [
+    {
+      "trait_type": "Base", 
+      "value": "gmhzxy"
+    }
+   ]
+}
+
+
