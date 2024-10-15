@@ -1,5 +1,11 @@
 # NFT Market
 
+
+## Test
+```
+forge test --match-contract NFTMarketTest
+```
+
 ## Deploy MyERC20Token
 ```
 forge script script/DeployMyERC20Token.s.sol:DeployMyERC20TokenScript --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
