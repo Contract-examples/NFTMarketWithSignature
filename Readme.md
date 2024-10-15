@@ -90,7 +90,12 @@ https://sepolia.arbiscan.io/address/0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
 NFTMarket addresas: 0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
 ```
 
-
-
-
+## Mint NFT
+```
+forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## Mint result
+```
+https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/3
+```
 
