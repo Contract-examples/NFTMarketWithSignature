@@ -14,6 +14,9 @@ contract NFTMarket {
     error NotTheSeller();
     error NFTNotListed();
     error TokenTransferFailed();
+    error InvalidToken();
+    error InvalidRecipient();
+    error InsufficientPayment();
 
     struct Listing {
         address seller;
