@@ -3,7 +3,7 @@
 
 ## Test
 ```
-forge test --match-contract NFTMarketTest
+forge test --match-contract NFTMarketTest -vv
 ```
 
 ## Deploy MyERC20Token
