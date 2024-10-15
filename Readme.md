@@ -84,6 +84,11 @@ NFT address: 0x0C9411984a111B26F2518e70D3731779103c9c35
 forge script script/DeployNFTMarket.s.sol:DeployNFTMarket --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
 ```
 
+## Deploy result
+```
+https://sepolia.arbiscan.io/address/0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
+NFTMarket addresas: 0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
+```
 
 
 
