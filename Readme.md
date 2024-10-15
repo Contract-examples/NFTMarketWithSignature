@@ -138,5 +138,7 @@ forge script script/BuyNFTAndQueryMarket.s.sol:BuyNFTAndQueryMarketScript --rpc-
   Price paid: 100000000000000000000
 Current NFT Market status:
   ----------------------------
+txhash: https://sepolia.arbiscan.io/tx/0x1b4f1d283970329d0a410b111a6c3114b55e44614e3c1e006588cc776fd812e8
+opensea: https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/0
 ```
 
