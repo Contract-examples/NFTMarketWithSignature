@@ -51,24 +51,14 @@ contract MyERC20TokenTest is Test {
 }
 
 // Mock contract to test tokensReceived hook
-contract TokenReceiverTest is ITokenReceiver {
+contract TokenReceiverTest is INFTCallback {
     bool public receivedTokens;
     uint256 public lastAmount;
 
-    function tokensReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes calldata userData
-    )
-        external
-        override
-    {
+    function buyNFTCallback(address from, address to, uint256 amount, bytes calldata userData) external override {
         receivedTokens = true;
         lastAmount = amount;
         console2.log("TokenReceiverTest: msg.sender", msg.sender);
-        console2.log("TokenReceiverTest: operator", operator);
         console2.log("TokenReceiverTest: from", from);
         console2.log("TokenReceiverTest: to", to);
         console2.log("TokenReceiverTest: amount", amount);

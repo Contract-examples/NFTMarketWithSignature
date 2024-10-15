@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MyERC20Token.sol";
-import "./ITokenReceiver.sol";
+import "./INFTCallback.sol";
 
 contract NFTMarket {
     // custom errors
@@ -110,16 +110,8 @@ contract NFTMarket {
         emit NFTSold(tokenId, listing.seller, msg.sender, listing.price);
     }
 
-    // this is our function to receive tokens
-    function tokensReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes calldata userData
-    )
-        external
-    {
+    // this is our callback function
+    function buyNFTCallback(address from, address to, uint256 amount, bytes calldata userData) external {
         // this is our require statement to check if the token is valid
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();
