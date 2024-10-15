@@ -228,28 +228,4 @@ contract NFTMarketTest is Test {
         assertEq(nftContract.ownerOf(tokenId), buyer);
         assertEq(paymentToken.balanceOf(seller), price);
     }
-
-    function testTokensReceivedHook2() public {
-        uint256 price = 100 * 10 ** paymentToken.decimals();
-
-        // seller's nft tokenId is 0
-        tokenId = 0;
-
-        // list nft
-        vm.startPrank(seller);
-        nftContract.approve(address(market), tokenId);
-        market.list(tokenId, price);
-        vm.stopPrank();
-
-        // buyer transfer to market contract
-        vm.startPrank(buyer);
-        bytes memory data = abi.encode(tokenId);
-
-        // use
-        paymentToken.transfer(address(market), price, data);
-        vm.stopPrank();
-
-        assertEq(nftContract.ownerOf(tokenId), buyer);
-        assertEq(paymentToken.balanceOf(seller), price);
-    }
 }
