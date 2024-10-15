@@ -68,5 +68,13 @@ contract TokenReceiverTest is ITokenReceiver {
         console2.log("TokenReceiverTest: from", from);
         console2.log("TokenReceiverTest: to", to);
         console2.log("TokenReceiverTest: amount", amount);
+
+        // decode userData to get tokenId
+        if (userData.length > 0) {
+            uint256 tokenId = abi.decode(userData, (uint256));
+            console2.log("TokenReceiverTest: tokenId", tokenId);
+        } else {
+            console2.log("TokenReceiverTest: no tokenId");
+        }
     }
 }
