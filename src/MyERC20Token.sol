@@ -2,18 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-interface ITokenReceiver {
-    function tokensReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes calldata userData,
-        bytes calldata operatorData
-    )
-        external;
-}
+import "./ITokenReceiver.sol";
 
 contract MyERC20Token is ERC20 {
     constructor() ERC20("MyNFTToken", "MTK") {
