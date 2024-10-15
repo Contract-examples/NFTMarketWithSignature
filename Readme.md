@@ -123,3 +123,20 @@ forge script script/QueryNFTMarket.s.sol:QueryNFTMarketScript --rpc-url arbitrum
   Current Owner: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
 ```
 
+## Buy NFT on NFT market
+```
+forge script script/BuyNFTAndQueryMarket.s.sol:BuyNFTAndQueryMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "Buy NFT on NFT market"
+```
+== Logs ==
+  NFT seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+  NFT price: 100000000000000000000
+  NFT purchased:
+  Buyer: 0xe091701aC9816D38241887147B41AE312d26e1C3
+  Token ID: 0
+  Price paid: 100000000000000000000
+Current NFT Market status:
+  ----------------------------
+```
+
