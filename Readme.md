@@ -86,8 +86,8 @@ forge script script/DeployNFTMarket.s.sol:DeployNFTMarket --rpc-url arbitrum_sep
 
 ## Deploy result
 ```
-https://sepolia.arbiscan.io/address/0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
-NFTMarket addresas: 0xeabdc6f5fc592520163729bdfae1bd891dbe9b4f
+https://sepolia.arbiscan.io/address/0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F
+NFTMarket addresas: 0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F
 ```
 
 ## Mint NFT
@@ -97,5 +97,10 @@ forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broad
 ## Mint result
 ```
 https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/3
+```
+
+## List NFT on NFT market
+```
+forge script script/ListNFTOnMarket.s.sol:ListNFTOnMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
 ```
 
