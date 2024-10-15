@@ -51,21 +51,21 @@ contract NFTMarketTest is Test {
         // get actual tokenId
         // seller
         {
-            uint256 i = 0; // set id = 0
+            uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
             console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
         }
         // seller2
         {
-            uint256 i = 0; // set id = 0
+            uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller2, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
             console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
         }
         // seller3
         {
-            uint256 i = 0; // set id = 0
+            uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller3, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
             console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
