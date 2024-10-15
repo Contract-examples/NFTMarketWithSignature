@@ -106,6 +106,7 @@ contract NFTMarket {
         emit NFTSold(tokenId, listing.seller, msg.sender, listing.price);
     }
 
+    // this is our function to receive tokens
     function tokensReceived(
         address operator,
         address from,
@@ -116,29 +117,50 @@ contract NFTMarket {
     )
         external
     {
-        require(msg.sender == address(paymentToken), "Invalid token");
-        require(to == address(this), "Invalid recipient");
+        // this is our require statement to check if the token is valid
+        if (msg.sender != address(paymentToken)) {
+            revert InvalidToken();
+        }
+
+        // this is our require statement to check if the recipient is valid
+        if (to != address(this)) {
+            revert InvalidRecipient();
+        }
 
         // decode userData to get tokenId
         uint256 tokenId = abi.decode(userData, (uint256));
 
         Listing memory listing = listings[tokenId];
-        require(listing.price > 0, "NFT not listed");
-        require(amount >= listing.price, "Insufficient payment");
+        // this is our require statement to check if the NFT is listed
+        if (listing.price <= 0) {
+            revert NFTNotListed();
+        }
 
+        // this is our require statement to check if the payment is sufficient
+        if (amount < listing.price) {
+            revert InsufficientPayment();
+        }
+
+        // remove the listing from the mapping
         delete listings[tokenId];
 
         // transfer the payment token to the seller
-        require(paymentToken.transfer(listing.seller, listing.price), "Token transfer failed");
+        if (!paymentToken.transfer(listing.seller, listing.price)) {
+            revert TokenTransferFailed();
+        }
 
         // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, from, tokenId);
 
         // if the buyer paid more than the price, refund the extra
         if (amount > listing.price) {
-            require(paymentToken.transfer(from, amount - listing.price), "Refund transfer failed");
+            if (!paymentToken.transfer(from, amount - listing.price)) {
+                revert TokenTransferFailed();
+            }
         }
 
+        // emit the NFTSold event
         emit NFTSold(tokenId, listing.seller, from, listing.price);
     }
 }
+
