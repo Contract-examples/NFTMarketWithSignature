@@ -79,4 +79,13 @@ https://sepolia.arbiscan.io/address/0x0C9411984a111B26F2518e70D3731779103c9c35
 NFT address: 0x0C9411984a111B26F2518e70D3731779103c9c35
 ```
 
+## Deploy NFTMarket
+```
+forge script script/DeployNFTMarket.s.sol:DeployNFTMarket --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
+```
+
+
+
+
+
 
