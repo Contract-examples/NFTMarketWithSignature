@@ -37,7 +37,7 @@ contract NFTMarketTest is Test {
         buyer3 = address(0x6);
 
         // give buyer 1000 tokens
-        paymentToken.mint(buyer, 1000 * 10 ** 18);
+        paymentToken.mint(buyer, 1000 * 10 ** paymentToken.decimals());
 
         // mock owner
         vm.prank(owner);
@@ -74,7 +74,7 @@ contract NFTMarketTest is Test {
         // seller
         {
             // nft price
-            uint256 price = 100 * 10 ** 18;
+            uint256 price = 100 * 10 ** paymentToken.decimals();
 
             // mock seller
             vm.startPrank(seller);
@@ -100,7 +100,7 @@ contract NFTMarketTest is Test {
         // seller2
         {
             // nft price
-            uint256 price = 100 * 10 ** 18;
+            uint256 price = 100 * 10 ** paymentToken.decimals();
 
             // mock seller2
             vm.startPrank(seller2);
@@ -126,7 +126,7 @@ contract NFTMarketTest is Test {
         // seller3
         {
             // nft price
-            uint256 price = 100 * 10 ** 18;
+            uint256 price = 100 * 10 ** paymentToken.decimals();
 
             // mock seller3
             vm.startPrank(seller3);
@@ -151,7 +151,7 @@ contract NFTMarketTest is Test {
     }
 
     // function testBuyNFT() public {
-    //     uint256 price = 100 * 10 ** 18;
+    //     uint256 price = 100 * 10 ** paymentToken.decimals();
 
     //     vm.startPrank(seller);
     //     nftContract.approve(address(market), tokenId);
@@ -171,7 +171,7 @@ contract NFTMarketTest is Test {
     // }
 
     // function testUnlistNFT() public {
-    //     uint256 price = 100 * 10 ** 18;
+    //     uint256 price = 100 * 10 ** paymentToken.decimals();
 
     //     vm.startPrank(seller);
     //     nftContract.approve(address(market), tokenId);
@@ -187,7 +187,7 @@ contract NFTMarketTest is Test {
     // }
 
     // function testTokensReceivedHook() public {
-    //     uint256 price = 100 * 10 ** 18;
+    //     uint256 price = 100 * 10 ** paymentToken.decimals();
 
     //     // list nft
     //     vm.startPrank(seller);
