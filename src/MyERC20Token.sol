@@ -6,9 +6,11 @@ import "./ITokenReceiver.sol";
 
 contract MyERC20Token is ERC20 {
     constructor() ERC20("MyNFTToken", "MTK") {
+        // mint 1000 nfts to the owner
         _mint(msg.sender, 1000 * 10 ** decimals());
     }
 
+    // this is a helper function to check if the recipient is a contract
     function _isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize, which returns 0 for contracts in
         // construction, since the code is only stored at the end of the
