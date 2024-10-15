@@ -27,7 +27,7 @@ contract MyERC20TokenTest is Test {
         token.transfer(user1, amount);
 
         assertEq(token.balanceOf(user1), amount, "Recipient balance incorrect");
-        assertEq(token.balanceOf(address(this)), 1000 * 10 ** token.decimals() - amount, "Sender balance incorrect");
+        assertEq(token.balanceOf(address(this)), 100_000 * 10 ** token.decimals() - amount, "Sender balance incorrect");
     }
 
     function testTokensReceivedHook() public {
