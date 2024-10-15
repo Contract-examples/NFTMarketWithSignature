@@ -1,0 +1,14 @@
+{ 
+  "description": "ERC 20 newworld",
+  "external_url": "https://github.com/gmh5225",
+  "image": "https://ipfs.io/ipfs/QmaBRSKPBNdrRQtsSLKoEVaqaBN18fzh4ENjnHNuX96ttN",
+  "name": "ERC 20 newworld", 
+  "attributes": [
+    {
+      "trait_type": "Base", 
+      "value": "newworld"
+    }
+   ]
+}
+
+
