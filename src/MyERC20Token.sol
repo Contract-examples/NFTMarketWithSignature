@@ -35,6 +35,7 @@ contract MyERC20Token is ERC20, Ownable {
         }
     }
 
+    // transfer and call 'tokensReceived'
     function transferAndCall(address to, uint256 amount, bytes memory data) public returns (bool) {
         bool success = transfer(to, amount);
         if (success && _isContract(to)) {
