@@ -107,3 +107,19 @@ forge script script/ListNFTOnMarket.s.sol:ListNFTOnMarketScript --rpc-url arbitr
 ```
 txhash: https://sepolia.arbiscan.io/tx/0x42a323eb877e31f69e79caa80159bb858605efe1d592cb78e10e713d4656e444
 ```
+
+## Query NFT market
+```
+forge script script/QueryNFTMarket.s.sol:QueryNFTMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "Query NFT market"
+```
+== Logs ==
+  NFTs listed on the market:
+  ----------------------------
+  Token ID: 0
+  Price: 100000000000000000000
+  Seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+  Current Owner: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+```
+
