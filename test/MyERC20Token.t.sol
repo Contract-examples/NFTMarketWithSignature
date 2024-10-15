@@ -64,6 +64,7 @@ contract TokenReceiverTest is ITokenReceiver {
     {
         receivedTokens = true;
         lastAmount = amount;
+        console2.log("TokenReceiverTest: msg.sender", msg.sender);
         console2.log("TokenReceiverTest: operator", operator);
         console2.log("TokenReceiverTest: from", from);
         console2.log("TokenReceiverTest: to", to);
