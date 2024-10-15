@@ -26,21 +26,11 @@ contract MyERC20Token is ERC20, Ownable {
         return size > 0;
     }
 
-    // when tokens are transferred, call the tokensReceived function on the receiver
-    function _update(address from, address to, uint256 amount) internal override {
-        super._update(from, to, amount);
-
-        // if the receiver is a contract, call the tokensReceived function
-        if (_isContract(to)) {
-            try ITokenReceiver(to).tokensReceived(msg.sender, from, to, amount, "", "") { } catch { }
-        }
-    }
-
     // transfer and call 'tokensReceived'
     function transferAndCall(address to, uint256 amount, bytes memory data) public returns (bool) {
         bool success = transfer(to, amount);
         if (success && _isContract(to)) {
-            try ITokenReceiver(to).tokensReceived(msg.sender, msg.sender, to, amount, data, "") { } catch { }
+            try ITokenReceiver(to).tokensReceived(msg.sender, msg.sender, to, amount, data) { } catch { }
         }
         return success;
     }

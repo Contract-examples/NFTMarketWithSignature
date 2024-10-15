@@ -17,6 +17,7 @@ contract NFTMarket {
     error InvalidToken();
     error InvalidRecipient();
     error InsufficientPayment();
+    error NoTokenId();
 
     struct Listing {
         address seller;
@@ -127,6 +128,11 @@ contract NFTMarket {
         // this is our require statement to check if the recipient is valid
         if (to != address(this)) {
             revert InvalidRecipient();
+        }
+
+        // this is our require statement to check if the userData is valid
+        if (userData.length <= 0) {
+            revert NoTokenId();
         }
 
         // decode userData to get tokenId

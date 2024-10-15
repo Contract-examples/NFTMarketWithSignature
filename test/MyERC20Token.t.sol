@@ -39,7 +39,11 @@ contract MyERC20TokenTest is Test {
         token.transfer(user1, amount);
 
         vm.prank(user1);
-        token.transfer(address(receiver), amount);
+
+        // test with tokenId
+        uint256 tokenId = 111;    
+        bytes memory data = abi.encode(tokenId);
+        token.transferAndCall(address(receiver), amount, data);
 
         assertTrue(receiver.receivedTokens());
         assertEq(receiver.lastAmount(), amount);
