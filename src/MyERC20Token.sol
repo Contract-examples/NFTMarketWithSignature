@@ -7,8 +7,8 @@ import "./ITokenReceiver.sol";
 
 contract MyERC20Token is ERC20, Ownable {
     constructor() ERC20("MyNFTToken", "MTK") Ownable(msg.sender) {
-        // mint 1000 nfts to the owner
-        _mint(msg.sender, 1000 * 10 ** decimals());
+        // mint 100000 tokens to the owner
+        _mint(msg.sender, 100000 * 10 ** decimals());
     }
 
     function mint(address to, uint256 amount) public onlyOwner {
