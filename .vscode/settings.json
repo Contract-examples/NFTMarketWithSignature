@@ -8,5 +8,9 @@
     "solidity.formatter": "forge",
     "solidity.packageDefaultDependenciesContractsDirectory": "src",
     "solidity.packageDefaultDependenciesDirectory": "lib",
-  }
-  
+    "solidity.remappings": [
+        "@openzeppelin/=lib/openzeppelin-contracts/",
+        "@solmate/=lib/solmate/src/",
+        "@forge/=lib/forge-std/src/"
+    ]
+}
