@@ -112,7 +112,16 @@ contract NFTMarket is IERC20Receiver {
     }
 
     // this is our callback function
-    function tokensReceived(address from, address to, uint256 amount, bytes calldata userData) external override returns (bool) {
+    function tokensReceived(
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData
+    )
+        external
+        override
+        returns (bool)
+    {
         // this is our require statement to check if the token is valid
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();
@@ -158,5 +167,7 @@ contract NFTMarket is IERC20Receiver {
 
         // emit the NFTSold event
         emit NFTSold(tokenId, listing.seller, from, listing.price);
+
+        return true;
     }
 }
