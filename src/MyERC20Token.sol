@@ -35,8 +35,8 @@ contract MyERC20Token is ERC20, Ownable {
         bool success = transfer(to, amount);
         if (success && _isContract(to)) {
             // then call the callback function
-            try IERC20Receiver(to).tokensReceived(msg.sender, to, amount, data) returns (bool) {
-                return true;
+            try IERC20Receiver(to).tokensReceived(msg.sender, to, amount, data) returns (bool result) {
+                return result;
             } catch {
                 revert TokensReceivedFailed();
             }
