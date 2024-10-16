@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./MyERC20Token.sol";
-import "./INFTCallback.sol";
+import "./IERC20Receiver.sol";
 
-contract NFTMarket {
+contract NFTMarket is IERC20Receiver {
     using SafeERC20 for MyERC20Token;
 
     // custom errors
@@ -112,7 +112,7 @@ contract NFTMarket {
     }
 
     // this is our callback function
-    function buyNFTCallback(address from, address to, uint256 amount, bytes calldata userData) external {
+    function tokensReceived(address from, address to, uint256 amount, bytes calldata userData) external override returns (bool) {
         // this is our require statement to check if the token is valid
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();

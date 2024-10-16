@@ -51,11 +51,11 @@ contract MyERC20TokenTest is Test {
 }
 
 // Mock contract to test NFTCallbackTest hook
-contract NFTCallbackTest is INFTCallback {
+contract NFTCallbackTest is IERC20Receiver {
     bool public receivedTokens;
     uint256 public lastAmount;
 
-    function buyNFTCallback(address from, address to, uint256 amount, bytes calldata userData) external override {
+    function tokensReceived(address from, address to, uint256 amount, bytes calldata userData) external override returns (bool) {
         receivedTokens = true;
         lastAmount = amount;
         console2.log("NFTCallbackTest: msg.sender", msg.sender);

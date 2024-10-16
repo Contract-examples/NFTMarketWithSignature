@@ -3,9 +3,12 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./INFTCallback.sol";
+import "./IERC20Receiver.sol";
 
 contract MyERC20Token is ERC20, Ownable {
+    // custom error
+    error TokensReceivedFailed();
+
     constructor() ERC20("MyNFTToken", "MTK") Ownable(msg.sender) {
         // mint 100000 tokens to the owner
         _mint(msg.sender, 100_000 * 10 ** decimals());
@@ -30,7 +33,11 @@ contract MyERC20Token is ERC20, Ownable {
     function transferAndCall(address to, uint256 amount, bytes memory data) public returns (bool) {
         bool success = transfer(to, amount);
         if (success && _isContract(to)) {
-            try INFTCallback(to).buyNFTCallback(msg.sender, to, amount, data) { } catch { }
+            try IERC20Receiver(to).tokensReceived(msg.sender, to, amount, data) returns (bool) {
+                return true;
+            } catch {
+                revert TokensReceivedFailed();
+            }
         }
         return success;
     }
