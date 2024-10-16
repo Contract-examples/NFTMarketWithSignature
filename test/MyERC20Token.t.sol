@@ -78,6 +78,8 @@ contract NFTCallbackTest is IERC20Receiver {
             console2.log("NFTCallbackTest: tokenId", tokenId);
         } else {
             console2.log("NFTCallbackTest: no tokenId");
+            return false;
         }
+        return true;
     }
 }
