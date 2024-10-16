@@ -31,8 +31,10 @@ contract MyERC20Token is ERC20, Ownable {
 
     // transfer and call 'buyNFTCallback'
     function transferAndCall(address to, uint256 amount, bytes memory data) public returns (bool) {
+        // first transfer the tokens
         bool success = transfer(to, amount);
         if (success && _isContract(to)) {
+            // then call the callback function
             try IERC20Receiver(to).tokensReceived(msg.sender, to, amount, data) returns (bool) {
                 return true;
             } catch {
