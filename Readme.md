@@ -9,7 +9,7 @@ forge test --match-contract NFTMarketTest -vv
 ## Test result
 ```
 Ran 4 tests for test/NFTMarket.t.sol:NFTMarketTest
-[PASS] testBuyNFT() (gas: 170669)
+[PASS] testBuyNFT() (gas: 170734)
 Logs:
   Index: 0, Minted NFT with ID: 0
   NFT owner: 0x0000000000000000000000000000000000000001
@@ -22,7 +22,7 @@ Logs:
   paymentToken.balanceOf(seller): 200000000000000000000
   price: 200000000000000000000
 
-[PASS] testBuyNFTCallback() (gas: 171673)
+[PASS] testBuyNFTCallback() (gas: 171838)
 Logs:
   Index: 0, Minted NFT with ID: 0
   NFT owner: 0x0000000000000000000000000000000000000001
@@ -61,7 +61,9 @@ Logs:
   listedSeller: 0x0000000000000000000000000000000000000000
   listedPrice: 0
 
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 1.84ms (1.55ms CPU time)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 1.62ms (1.73ms CPU time)
+
+Ran 1 test suite in 13.82ms (1.62ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)
 ```
 
 
