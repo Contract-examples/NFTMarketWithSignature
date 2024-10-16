@@ -55,7 +55,16 @@ contract NFTCallbackTest is IERC20Receiver {
     bool public receivedTokens;
     uint256 public lastAmount;
 
-    function tokensReceived(address from, address to, uint256 amount, bytes calldata userData) external override returns (bool) {
+    function tokensReceived(
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData
+    )
+        external
+        override
+        returns (bool)
+    {
         receivedTokens = true;
         lastAmount = amount;
         console2.log("NFTCallbackTest: msg.sender", msg.sender);

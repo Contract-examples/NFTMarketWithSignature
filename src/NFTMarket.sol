@@ -51,12 +51,12 @@ contract NFTMarket is IERC20Receiver {
 
     // this is our function to list an NFT
     function list(uint256 tokenId, uint256 price) external {
-        // this is our require statement to check if the NFT is owned by the sender
+        // make sure the sender is the owner of the NFT
         if (nftContract.ownerOf(tokenId) != msg.sender) {
             revert NotTheOwner();
         }
 
-        // this is our require statement to check if the NFT is approved
+        // make sure the NFT is approved for the NFTMarket contract
         if (
             nftContract.getApproved(tokenId) != address(this)
                 && !nftContract.isApprovedForAll(msg.sender, address(this))
@@ -64,7 +64,7 @@ contract NFTMarket is IERC20Receiver {
             revert NFTNotApproved();
         }
 
-        // this is our require statement to check if the price is greater than zero
+        // make sure the price is greater than zero
         if (price <= 0) {
             revert PriceMustBeGreaterThanZero();
         }
@@ -78,7 +78,7 @@ contract NFTMarket is IERC20Receiver {
 
     // this is our function to unlist an NFT
     function unlist(uint256 tokenId) external {
-        // this is our require statement to check if the seller is the sender
+        // make sure the sender is the seller of the NFT
         if (listings[tokenId].seller != msg.sender) {
             revert NotTheSeller();
         }
@@ -93,7 +93,7 @@ contract NFTMarket is IERC20Receiver {
     // this is our function to buy an NFT
     function buyNFT(uint256 tokenId) external {
         Listing memory listing = listings[tokenId];
-        // this is our require statement to check if the NFT is listed
+        // make sure the NFT is listed
         if (listing.price <= 0) {
             revert NFTNotListed();
         }
@@ -122,17 +122,17 @@ contract NFTMarket is IERC20Receiver {
         override
         returns (bool)
     {
-        // this is our require statement to check if the token is valid
+        // make sure msg.sender is the payment token
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();
         }
 
-        // this is our require statement to check if the recipient is valid
+        // make sure 'to' is the NFTMarket contract
         if (to != address(this)) {
             revert InvalidRecipient();
         }
 
-        // this is our require statement to check if the userData is valid
+        // make sure userData is valid
         if (userData.length <= 0) {
             revert NoTokenId();
         }
