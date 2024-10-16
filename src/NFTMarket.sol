@@ -3,10 +3,13 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./MyERC20Token.sol";
 import "./INFTCallback.sol";
 
 contract NFTMarket {
+    using SafeERC20 for MyERC20Token;
+
     // custom errors
     error NotTheOwner();
     error NFTNotApproved();
@@ -96,9 +99,7 @@ contract NFTMarket {
         }
 
         // transfer the payment token to the seller
-        if (!paymentToken.transferFrom(msg.sender, listing.seller, listing.price)) {
-            revert TokenTransferFailed();
-        }
+        paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
 
         // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, msg.sender, tokenId);
@@ -145,18 +146,14 @@ contract NFTMarket {
         delete listings[tokenId];
 
         // transfer the payment token to the seller
-        if (!paymentToken.transfer(listing.seller, listing.price)) {
-            revert TokenTransferFailed();
-        }
+        paymentToken.safeTransfer(listing.seller, listing.price);
 
         // transfer the NFT to the buyer
         nftContract.safeTransferFrom(listing.seller, from, tokenId);
 
         // if the buyer paid more than the price, refund the extra
         if (amount > listing.price) {
-            if (!paymentToken.transfer(from, amount - listing.price)) {
-                revert TokenTransferFailed();
-            }
+            paymentToken.safeTransfer(from, amount - listing.price);
         }
 
         // emit the NFTSold event
