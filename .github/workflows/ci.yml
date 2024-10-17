@@ -28,6 +28,6 @@ jobs:
       - name: Run tests
         run: | 
           forge clean
-          forge test -vv
+          forge test --fork-url arbitrum_sepolia -vv
           forge test --gas-report
           
