@@ -13,29 +13,29 @@ forge test --match-contract=NFTMarketTest --fork-url arbitrum_sepolia
 ### NFTMarketTest
 ```
 Ran 20 tests for test/NFTMarket.t.sol:NFTMarketTest
-[PASS] testBuyNFT() (gas: 194226)
-[PASS] testBuyNFTCallback() (gas: 195340)
+[PASS] testBuyNFT() (gas: 194007)
+[PASS] testBuyNFTCallback() (gas: 195126)
 [PASS] testBuyNFTCallbackInsufficientPayment() (gas: 112667)
-[PASS] testBuyNFTCallbackPaidMoreThanPrice() (gas: 179023)
+[PASS] testBuyNFTCallbackPaidMoreThanPrice() (gas: 178592)
 [PASS] testBuyNFTCallbackTokensReceivedFailed() (gas: 139444)
-[PASS] testBuyNFTEmitEvent() (gas: 167912)
-[PASS] testBuyNFTInsufficientBalance() (gas: 138054)
+[PASS] testBuyNFTEmitEvent() (gas: 167693)
+[PASS] testBuyNFTInsufficientBalance() (gas: 136452)
 [PASS] testBuyNFTNotListed() (gas: 48837)
-[PASS] testBuyNFTRepeat() (gas: 166740)
+[PASS] testBuyNFTRepeat() (gas: 166521)
 [PASS] testBuyNFTheSenderIsTheSeller() (gas: 129804)
-[PASS] testFuzzListAndBuyNFT(uint256,uint256) (runs: 1005, μ: 260186, ~: 260211)
+[PASS] testFuzzListAndBuyNFT(uint256,uint256) (runs: 1000, μ: 259971, ~: 259989)
 [PASS] testListEmitEvent() (gas: 105162)
 [PASS] testListNFT() (gas: 345205)
 [PASS] testListNFTNotApproved() (gas: 31231)
 [PASS] testListNFTZeroPrice() (gas: 51262)
 [PASS] testListNotOwner() (gas: 74295)
-[PASS] testNoTokenBalanceInMarket() (gas: 316362)
+[PASS] testNoTokenBalanceInMarket() (gas: 315712)
 [PASS] testUnlistNFT() (gas: 95280)
 [PASS] testUnlistNFTEmitEvent() (gas: 81410)
 [PASS] testUnlistNFTNotTheSeller() (gas: 126223)
-Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 446.47ms (457.70ms CPU time)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 448.04ms (456.30ms CPU time)
 
-Ran 1 test suite in 450.29ms (446.47ms CPU time): 20 tests passed, 0 failed, 0 skipped (20 total tests)
+Ran 1 test suite in 452.17ms (448.04ms CPU time): 20 tests passed, 0 failed, 0 skipped (20 total tests)
 ```
 
 ### NFTMarketInvariantTest
