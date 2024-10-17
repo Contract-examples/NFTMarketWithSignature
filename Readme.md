@@ -3,65 +3,36 @@
 
 ## Test
 ```
-forge test --match-contract=NFTMarketTest -vv
-forge test --match-contract=NFTMarketTest --fork-url arbitrum_sepolia -vv
+forge test --match-contract=NFTMarketTest
+forge test --match-contract=NFTMarketTest --fork-url arbitrum_sepolia
 ```
 
 ## Test result
 ```
-Ran 4 tests for test/NFTMarket.t.sol:NFTMarketTest
-[PASS] testBuyNFT() (gas: 170734)
-Logs:
-  Index: 0, Minted NFT with ID: 0
-  NFT owner: 0x0000000000000000000000000000000000000001
-  Index: 0, Minted NFT with ID: 1
-  NFT owner: 0x0000000000000000000000000000000000000002
-  Index: 0, Minted NFT with ID: 2
-  NFT owner: 0x0000000000000000000000000000000000000003
-  nftContract.ownerOf(tokenId): 0x0000000000000000000000000000000000000004
-  buyer: 0x0000000000000000000000000000000000000004
-  paymentToken.balanceOf(seller): 200000000000000000000
-  price: 200000000000000000000
+Ran 20 tests for test/NFTMarket.t.sol:NFTMarketTest
+[PASS] testBuyNFT() (gas: 194226)
+[PASS] testBuyNFTCallback() (gas: 195340)
+[PASS] testBuyNFTCallbackInsufficientPayment() (gas: 112667)
+[PASS] testBuyNFTCallbackPaidMoreThanPrice() (gas: 179023)
+[PASS] testBuyNFTCallbackTokensReceivedFailed() (gas: 139444)
+[PASS] testBuyNFTEmitEvent() (gas: 167912)
+[PASS] testBuyNFTInsufficientBalance() (gas: 138054)
+[PASS] testBuyNFTNotListed() (gas: 48837)
+[PASS] testBuyNFTRepeat() (gas: 166740)
+[PASS] testBuyNFTheSenderIsTheSeller() (gas: 129804)
+[PASS] testFuzzListAndBuyNFT(uint256,uint256) (runs: 1005, μ: 260186, ~: 260211)
+[PASS] testListEmitEvent() (gas: 105162)
+[PASS] testListNFT() (gas: 345205)
+[PASS] testListNFTNotApproved() (gas: 31231)
+[PASS] testListNFTZeroPrice() (gas: 51262)
+[PASS] testListNotOwner() (gas: 74295)
+[PASS] testNoTokenBalanceInMarket() (gas: 316362)
+[PASS] testUnlistNFT() (gas: 95280)
+[PASS] testUnlistNFTEmitEvent() (gas: 81410)
+[PASS] testUnlistNFTNotTheSeller() (gas: 126223)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 446.47ms (457.70ms CPU time)
 
-[PASS] testBuyNFTCallback() (gas: 171838)
-Logs:
-  Index: 0, Minted NFT with ID: 0
-  NFT owner: 0x0000000000000000000000000000000000000001
-  Index: 0, Minted NFT with ID: 1
-  NFT owner: 0x0000000000000000000000000000000000000002
-  Index: 0, Minted NFT with ID: 2
-  NFT owner: 0x0000000000000000000000000000000000000003
-  nftContract.ownerOf(tokenId): 0x0000000000000000000000000000000000000004
-  buyer: 0x0000000000000000000000000000000000000004
-  paymentToken.balanceOf(seller): 100000000000000000000
-  price: 100000000000000000000
-
-[PASS] testListNFT() (gas: 294740)
-Logs:
-  Index: 0, Minted NFT with ID: 0
-  NFT owner: 0x0000000000000000000000000000000000000001
-  Index: 0, Minted NFT with ID: 1
-  NFT owner: 0x0000000000000000000000000000000000000002
-  Index: 0, Minted NFT with ID: 2
-  NFT owner: 0x0000000000000000000000000000000000000003
-  seller: listedSeller: 0x0000000000000000000000000000000000000001
-  seller: listedPrice: 100000000000000000000
-  seller2: listedSeller: 0x0000000000000000000000000000000000000002
-  seller2: listedPrice: 100000000000000000000
-  seller3: listedSeller: 0x0000000000000000000000000000000000000003
-  seller3: listedPrice: 100000000000000000000
-
-[PASS] testUnlistNFT() (gas: 82199)
-Logs:
-  Index: 0, Minted NFT with ID: 0
-  NFT owner: 0x0000000000000000000000000000000000000001
-  Index: 0, Minted NFT with ID: 1
-  NFT owner: 0x0000000000000000000000000000000000000002
-  NFT owner: 0x0000000000000000000000000000000000000003
-  listedSeller: 0x0000000000000000000000000000000000000000
-  listedPrice: 0
-
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 4.82s (575.04ms CPU time)
+Ran 1 test suite in 450.29ms (446.47ms CPU time): 20 tests passed, 0 failed, 0 skipped (20 total tests)
 ```
 
 
