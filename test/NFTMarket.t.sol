@@ -63,7 +63,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         addressLabels[buyer3] = "buyer3";
 
         // give buyer/buyer2/buyer3 1000 tokens
-        paymentToken.mint(buyer, 2000 * 10 ** paymentToken.decimals());
+        paymentToken.mint(buyer, 20_000 * 10 ** paymentToken.decimals());
         paymentToken.mint(buyer2, 1000 * 10 ** paymentToken.decimals());
         paymentToken.mint(buyer3, 1000 * 10 ** paymentToken.decimals());
 
@@ -620,5 +620,59 @@ contract NFTMarketTest is Test, IERC20Errors {
         assertEq(paymentToken.balanceOf(buyer), beforBalance + refundPrice);
 
         vm.stopPrank();
+    }
+
+    function testFuzzListAndBuyNFT(uint256 price, uint256 buyerSeed) public {
+        uint256 decimals = paymentToken.decimals();
+        console2.log("decimals:", decimals);
+        uint256 minPrice = 10 ** (decimals - 2); // 0.01 token
+        console2.log("minPrice:", minPrice);
+        uint256 maxPrice = 10_000 * 10 ** decimals; // 10,000 tokens
+        console2.log("maxPrice:", maxPrice);
+
+        price = bound(price, minPrice, maxPrice);
+        console2.log("Bound result", price);
+
+        // private keys range is 1-0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140
+        buyerSeed = bound(buyerSeed, 1, 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140);
+        // Generate a valid EOA address for the buyer
+        address fuzzBuyer = vm.addr(buyerSeed);
+        // Ensure fuzzBuyer is not the seller
+        vm.assume(fuzzBuyer != seller && fuzzBuyer != address(0));
+        addressLabels[fuzzBuyer] = "fuzzBuyer";
+        console2.log("fuzzBuyer:", getAddressLabel(fuzzBuyer));
+
+        // Mint tokens to the fuzzy buyer
+        vm.prank(owner);
+        paymentToken.mint(fuzzBuyer, 200_000 * 10 ** decimals);
+
+        uint256 beforeBalanceOfFuzzBuyer = paymentToken.balanceOf(fuzzBuyer);
+        console2.log("beforeBalanceOfFuzzBuyer:", beforeBalanceOfFuzzBuyer);
+        uint256 beforeBalanceOfSeller = paymentToken.balanceOf(seller);
+        console2.log("beforeBalanceOfSeller:", beforeBalanceOfSeller);
+
+        // List NFT
+        vm.startPrank(seller);
+        tokenId = 0;
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // Buy NFT
+        vm.startPrank(fuzzBuyer);
+        paymentToken.approve(address(market), price);
+        market.buyNFT(tokenId);
+        vm.stopPrank();
+
+        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
+        console2.log("fuzzBuyer:", getAddressLabel(fuzzBuyer));
+
+        // Assert the NFT ownership and token balances
+        assertEq(nftContract.ownerOf(tokenId), fuzzBuyer);
+        assertEq(paymentToken.balanceOf(seller), beforeBalanceOfSeller + price);
+        assertEq(paymentToken.balanceOf(fuzzBuyer), beforeBalanceOfFuzzBuyer - price);
+
+        console2.log("Fuzzy test passed with price:", price);
+        console2.log("Buyer:", getAddressLabel(fuzzBuyer));
     }
 }
