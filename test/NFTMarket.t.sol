@@ -398,6 +398,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         // set expect revert
         vm.expectRevert(NFTMarket.NFTNotListed.selector);
 
+        // buy nft again
         market.buyNFT(tokenId);
 
         vm.stopPrank();
