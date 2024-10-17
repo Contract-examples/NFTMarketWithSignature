@@ -41,6 +41,7 @@ contract NFTMarketTest is Test {
         buyer3 = makeAddr("buyer3");
 
         // set label
+        addressLabels[owner] = "owner";
         addressLabels[seller] = "seller";
         addressLabels[seller2] = "seller2";
         addressLabels[seller3] = "seller3";
