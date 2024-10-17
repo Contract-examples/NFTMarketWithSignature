@@ -63,7 +63,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         addressLabels[buyer3] = "buyer3";
 
         // give buyer/buyer2/buyer3 1000 tokens
-        paymentToken.mint(buyer, 1000 * 10 ** paymentToken.decimals());
+        paymentToken.mint(buyer, 2000 * 10 ** paymentToken.decimals());
         paymentToken.mint(buyer2, 1000 * 10 ** paymentToken.decimals());
         paymentToken.mint(buyer3, 1000 * 10 ** paymentToken.decimals());
 
@@ -604,10 +604,12 @@ contract NFTMarketTest is Test, IERC20Errors {
 
         // paid more than price
         uint256 paidPrice = price * 2;
+        uint256 refundPrice = paidPrice - price;
+        uint256 beforBalance = paymentToken.balanceOf(buyer) - paidPrice;
 
         // expect emit Refund event
         vm.expectEmit(true, false, false, true);
-        emit NFTMarket.Refund(buyer, price);
+        emit NFTMarket.Refund(buyer, refundPrice);
 
         paymentToken.transferAndCall(address(market), paidPrice, data);
 
@@ -615,7 +617,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         console2.log("price:", price);
         console2.log("paidPrice:", paidPrice);
 
-        assertEq(paymentToken.balanceOf(buyer), price);
+        assertEq(paymentToken.balanceOf(buyer), beforBalance + refundPrice);
 
         vm.stopPrank();
     }
