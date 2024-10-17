@@ -338,6 +338,28 @@ contract NFTMarketTest is Test {
         vm.stopPrank();
     }
 
+    function testUnlistNFTEmitEvent() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+
+        // list nft
+        market.list(tokenId, price);
+
+        // expect emit NFTUnlisted event
+        vm.expectEmit(true, false, false, false);
+        emit NFTMarket.NFTUnlisted(tokenId);
+
+        // unlist nft
+        market.unlist(tokenId);
+
+        vm.stopPrank();
+    }
+
     function testBuyNFTCallback() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
