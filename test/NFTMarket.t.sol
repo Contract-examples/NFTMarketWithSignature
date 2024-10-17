@@ -464,7 +464,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         paymentToken.approve(address(market), price);
 
         // expect emit NFTSold event
-        vm.expectEmit(true, true, false, true);
+        vm.expectEmit(true, true, true, true);
         emit NFTMarket.NFTSold(tokenId, seller, buyer, price);
 
         market.buyNFT(tokenId);
