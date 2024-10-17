@@ -67,7 +67,7 @@ contract NFTMarketTest is Test {
 
         // mock owner
         vm.prank(owner);
-        
+
         // let owner mint nft to seller
         nftContract.safeMint(seller, "ipfs://test-url-001");
         nftContract.safeMint(seller2, "ipfs://test-url-002");
@@ -185,14 +185,17 @@ contract NFTMarketTest is Test {
         vm.startPrank(seller);
 
         // seller's nft tokenId is 0
-        // we set 1 to test "not owner"
-        tokenId = 1;
+        tokenId = 0;
 
         // approve nft-market to transfer nft by tokenId
         nftContract.approve(address(market), tokenId);
 
         // set expect revert
         vm.expectRevert(NFTMarket.NotTheOwner.selector);
+
+        // seller's nft tokenId is 0
+        // we set 1 to test "not owner"
+        tokenId = 1;
 
         // list nft
         market.list(tokenId, price);
