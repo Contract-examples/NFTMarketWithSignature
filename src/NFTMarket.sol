@@ -57,10 +57,9 @@ contract NFTMarket is IERC20Receiver {
         }
 
         // make sure the NFT is approved for the NFTMarket contract
-        if (
-            nftContract.getApproved(tokenId) != address(this)
-                && !nftContract.isApprovedForAll(msg.sender, address(this))
-        ) {
+        bool isIndividuallyApproved = nftContract.getApproved(tokenId) == address(this);
+        bool isApprovedForAll = nftContract.isApprovedForAll(msg.sender, address(this));
+        if (!isIndividuallyApproved && !isApprovedForAll) {
             revert NFTNotApproved();
         }
 
