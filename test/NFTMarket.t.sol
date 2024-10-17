@@ -263,36 +263,6 @@ contract NFTMarketTest is Test {
         vm.stopPrank();
     }
 
-    function testBuyNFT() public {
-        uint256 price = 200 * 10 ** paymentToken.decimals();
-
-        vm.startPrank(seller);
-
-        // seller's nft tokenId is 0
-        tokenId = 0;
-
-        // approve nft-market to transfer nft by tokenId
-        nftContract.approve(address(market), tokenId);
-
-        // list nft
-        market.list(tokenId, price);
-        vm.stopPrank();
-
-        // buyer buy nft
-        vm.startPrank(buyer);
-        paymentToken.approve(address(market), price);
-        market.buyNFT(tokenId);
-        vm.stopPrank();
-
-        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
-        console2.log("buyer:", getAddressLabel(buyer));
-        console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
-        console2.log("price:", price);
-
-        assertEq(nftContract.ownerOf(tokenId), buyer);
-        assertEq(paymentToken.balanceOf(seller), price);
-    }
-
     function testUnlistNFT() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
@@ -365,6 +335,36 @@ contract NFTMarketTest is Test {
         market.unlist(tokenId);
 
         vm.stopPrank();
+    }
+
+    function testBuyNFT() public {
+        uint256 price = 200 * 10 ** paymentToken.decimals();
+
+        vm.startPrank(seller);
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // approve nft-market to transfer nft by tokenId
+        nftContract.approve(address(market), tokenId);
+
+        // list nft
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer buy nft
+        vm.startPrank(buyer);
+        paymentToken.approve(address(market), price);
+        market.buyNFT(tokenId);
+        vm.stopPrank();
+
+        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
+        console2.log("buyer:", getAddressLabel(buyer));
+        console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
+        console2.log("price:", price);
+
+        assertEq(nftContract.ownerOf(tokenId), buyer);
+        assertEq(paymentToken.balanceOf(seller), price);
     }
 
     function testBuyNFTCallback() public {
