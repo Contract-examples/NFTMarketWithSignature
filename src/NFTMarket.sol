@@ -159,8 +159,8 @@ contract NFTMarket is IERC20Receiver {
         return true;
     }
 
-    // this is our internal function to transfer NFT from seller to buyer
-    function _safeTransferFromSellerToBuyer(uint256 tokenId, address buyer, uint256 price) internal {
+    // this is our private function to transfer NFT from seller to buyer
+    function _safeTransferFromSellerToBuyer(uint256 tokenId, address buyer, uint256 price) private {
         Listing memory listing = listings[tokenId];
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         delete listings[tokenId];
