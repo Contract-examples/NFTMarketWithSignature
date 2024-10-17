@@ -21,7 +21,8 @@ contract NFTMarket is IERC20Receiver {
     error InvalidRecipient();
     error InsufficientPayment();
     error NoTokenId();
-
+    error TheSenderIsTheSeller();
+    
     struct Listing {
         address seller;
         uint256 price;
