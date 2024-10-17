@@ -29,12 +29,12 @@ contract NFTMarketTest is Test {
         nftContract = new MyNFT(owner);
         market = new NFTMarket(address(nftContract), address(paymentToken));
 
-        seller = address(0x1);
-        seller2 = address(0x2);
-        seller3 = address(0x3);
-        buyer = address(0x4);
-        buyer2 = address(0x5);
-        buyer3 = address(0x6);
+        seller = makeAddr("seller");
+        seller2 = makeAddr("seller2");
+        seller3 = makeAddr("seller3");
+        buyer = makeAddr("buyer");
+        buyer2 = makeAddr("buyer2");
+        buyer3 = makeAddr("buyer3");
 
         // give buyer/buyer2/buyer3 1000 tokens
         paymentToken.mint(buyer, 1000 * 10 ** paymentToken.decimals());
