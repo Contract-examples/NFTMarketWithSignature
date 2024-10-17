@@ -25,6 +25,17 @@ contract NFTMarketTest is Test {
 
     mapping(address => string) private addressLabels;
 
+    // get address label
+    function getAddressLabel(address addr) internal view returns (string memory) {
+        string memory label = addressLabels[addr];
+        if (bytes(label).length == 0) {
+            // if not set, return hex string
+            return Strings.toHexString(uint160(addr), 20);
+        }
+        // if set, return label
+        return string(abi.encodePacked(label, " (", Strings.toHexString(uint160(addr), 20), ")"));
+    }
+
     function setUp() public {
         owner = address(this);
         paymentToken = new MyERC20Token();
@@ -67,31 +78,22 @@ contract NFTMarketTest is Test {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
+            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
         }
         // seller2
         {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller2, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
+            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
         }
         // seller3
         {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller3, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", nftContract.ownerOf(currentTokenId));
+            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
         }
-    }
-
-    // get address label
-    function getAddressLabel(address addr) internal view returns (string memory) {
-        string memory label = addressLabels[addr];
-        if (bytes(label).length == 0) {
-            return Strings.toHexString(uint160(addr), 20);
-        }
-        return string(abi.encodePacked(label, " (", Strings.toHexString(uint160(addr), 20), ")"));
     }
 
     function testListNFT() public {
