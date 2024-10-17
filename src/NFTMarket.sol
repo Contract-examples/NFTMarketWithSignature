@@ -25,6 +25,11 @@ contract NFTMarket is IERC20Receiver {
     error InvalidPrice();
     error InvalidSeller();
 
+    // custom events
+    event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
+    event NFTSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
+    event NFTUnlisted(uint256 indexed tokenId);
+
     struct Listing {
         address seller;
         uint256 price;
@@ -37,13 +42,6 @@ contract NFTMarket is IERC20Receiver {
 
     // this is our listing mapping [tokenId => Listing]
     mapping(uint256 => Listing) public listings;
-
-    // this is our event for when an NFT is listed
-    event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
-    // this is our event for when an NFT is sold
-    event NFTSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
-    // this is our event for when an NFT is unlisted
-    event NFTUnlisted(uint256 indexed tokenId);
 
     constructor(address _nftContract, address _paymentToken) {
         // this is our NFT contract
