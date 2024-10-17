@@ -371,6 +371,23 @@ contract NFTMarketTest is Test {
         assertEq(paymentToken.balanceOf(seller), price);
     }
 
+    function testBuyNFTNotListed() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // buyer buy nft
+        vm.startPrank(buyer);
+        paymentToken.approve(address(market), price);
+
+        // set expect revert
+        vm.expectRevert(NFTMarket.NFTNotListed.selector);
+
+        market.buyNFT(tokenId);
+        vm.stopPrank();
+    }
+
     function testBuyNFTCallback() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
