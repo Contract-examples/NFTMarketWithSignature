@@ -622,6 +622,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.stopPrank();
     }
 
+    // test fuzzing
     function testFuzzListAndBuyNFT(uint256 price, uint256 buyerSeed) public {
         uint256 decimals = paymentToken.decimals();
         console2.log("decimals:", decimals);
@@ -635,7 +636,7 @@ contract NFTMarketTest is Test, IERC20Errors {
 
         // private keys range is 1-0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140
         buyerSeed = bound(buyerSeed, 1, 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140);
-        // Generate a valid EOA address for the buyer
+        // Generate a valid EOA address for the buyer randomly
         address fuzzBuyer = vm.addr(buyerSeed);
         // Ensure fuzzBuyer is not the seller
         vm.assume(fuzzBuyer != seller && fuzzBuyer != address(0));
@@ -674,5 +675,110 @@ contract NFTMarketTest is Test, IERC20Errors {
 
         console2.log("Fuzzy test passed with price:", price);
         console2.log("Buyer:", getAddressLabel(fuzzBuyer));
+    }
+
+    function testNoTokenBalanceInMarket() public {
+        uint256 initialPrice = 100 * 10 ** paymentToken.decimals();
+        uint256 higherPrice = 150 * 10 ** paymentToken.decimals();
+
+        // List NFT
+        vm.startPrank(seller);
+        tokenId = 0;
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, initialPrice);
+        vm.stopPrank();
+
+        // Check market balance before any transaction
+        assertEq(paymentToken.balanceOf(address(market)), 0);
+
+        // Buy NFT
+        vm.startPrank(buyer);
+        paymentToken.approve(address(market), initialPrice);
+        market.buyNFT(tokenId);
+        vm.stopPrank();
+
+        // Check market balance after buying
+        assertEq(paymentToken.balanceOf(address(market)), 0);
+
+        // List NFT again with a higher price
+        vm.startPrank(buyer);
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, higherPrice);
+        vm.stopPrank();
+
+        // Buy NFT again with excess payment
+        vm.startPrank(buyer2);
+        paymentToken.approve(address(market), higherPrice + 10 * 10 ** paymentToken.decimals());
+        bytes memory data = abi.encode(tokenId);
+        paymentToken.transferAndCall(address(market), higherPrice + 10 * 10 ** paymentToken.decimals(), data);
+        vm.stopPrank();
+
+        // Check market balance after buying with excess payment
+        assertEq(paymentToken.balanceOf(address(market)), 0);
+    }
+}
+
+// test invariant
+contract NFTMarketInvariantTest is Test {
+    NFTMarket public market;
+    MyERC20Token public paymentToken;
+    MyNFT public nftContract;
+    address public owner;
+    address[] public users;
+
+    function setUp() public {
+        owner = address(this);
+        paymentToken = new MyERC20Token();
+        nftContract = new MyNFT(owner);
+        market = new NFTMarket(address(nftContract), address(paymentToken));
+
+        // Create some users
+        for (uint256 i = 0; i < 5; i++) {
+            address user = address(uint160(i + 1));
+            users.push(user);
+            paymentToken.mint(user, 1000 * 10 ** 18);
+            nftContract.safeMint(user, string(abi.encodePacked("ipfs://test-url-", Strings.toString(i))));
+        }
+
+        // Approve market for all users
+        for (uint256 i = 0; i < users.length; i++) {
+            vm.prank(users[i]);
+            nftContract.setApprovalForAll(address(market), true);
+            paymentToken.approve(address(market), type(uint256).max);
+        }
+
+        // Set up invariant test targets
+        targetContract(address(market));
+        for (uint256 i = 0; i < users.length; i++) {
+            targetSender(users[i]);
+        }
+    }
+
+    function invariant_marketHasNoBalance() public {
+        assertEq(paymentToken.balanceOf(address(market)), 0);
+    }
+
+    function invariant_listingsAreValid() public {
+        for (uint256 i = 0; i < 5; i++) {
+            (address seller, uint256 price) = market.listings(i);
+            if (seller != address(0)) {
+                assertEq(nftContract.ownerOf(i), seller);
+                assertEq(price > 0, true);
+            }
+        }
+    }
+
+    function invariant_nftOwnersHaveCorrectBalance() public {
+        for (uint256 i = 0; i < 5; i++) {
+            address owner = nftContract.ownerOf(i);
+            (address seller, uint256 price) = market.listings(i);
+            if (seller == address(0)) {
+                // NFT is not listed, owner should have it
+                assertEq(nftContract.balanceOf(owner), 1);
+            } else {
+                // NFT is listed, seller should not have it
+                assertEq(nftContract.balanceOf(seller), 0);
+            }
+        }
     }
 }
