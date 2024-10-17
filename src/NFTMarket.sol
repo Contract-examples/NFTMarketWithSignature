@@ -106,8 +106,8 @@ contract NFTMarket is IERC20Receiver {
         // transfer the payment token to the seller
         paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
 
-        // process the purchase
-        _processPurchase(tokenId, msg.sender, listing.price);
+        // transfer NFT from seller to buyer
+        _safeTransferFromSellerToBuyer(tokenId, msg.sender, listing.price);
     }
 
     // this is our callback function
@@ -153,14 +153,14 @@ contract NFTMarket is IERC20Receiver {
         // transfer the payment token to the seller
         paymentToken.safeTransfer(listing.seller, listing.price);
 
-        // process the purchase
-        _processPurchase(tokenId, from, listing.price);
+        // transfer NFT from seller to buyer
+        _safeTransferFromSellerToBuyer(tokenId, from, listing.price);
 
         return true;
     }
 
-    // this is our internal function to process the purchase
-    function _processPurchase(uint256 tokenId, address buyer, uint256 price) internal {
+    // this is our internal function to transfer NFT from seller to buyer
+    function _safeTransferFromSellerToBuyer(uint256 tokenId, address buyer, uint256 price) internal {
         Listing memory listing = listings[tokenId];
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         delete listings[tokenId];

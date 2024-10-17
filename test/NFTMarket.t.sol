@@ -488,7 +488,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.startPrank(buyer);
         bytes memory data = abi.encode(tokenId);
 
-        // use paymentToken to get nft
+        // transfer token to nft-market contract and call buyNFT
         paymentToken.transferAndCall(address(market), price, data);
         vm.stopPrank();
 
