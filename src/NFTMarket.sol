@@ -127,7 +127,9 @@ contract NFTMarket is IERC20Receiver {
         if (to != address(this)) {
             revert InvalidRecipient();
         }
-        if (userData.length <= 0) {
+
+        // make sure the userData is 32 bytes
+        if (userData.length != 32) {
             revert NoTokenId();
         }
 
@@ -138,8 +140,6 @@ contract NFTMarket is IERC20Receiver {
         if (listing.price == 0) {
             revert NFTNotListed();
         }
-
-        // make sure the buyer paid enough
         if (amount < listing.price) {
             revert InsufficientPayment();
         }
