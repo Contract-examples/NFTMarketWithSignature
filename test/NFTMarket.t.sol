@@ -642,7 +642,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         addressLabels[fuzzBuyer] = "fuzzBuyer";
         console2.log("fuzzBuyer:", getAddressLabel(fuzzBuyer));
 
-        // Mint tokens to the fuzzy buyer
+        // Mint 200_000 tokens to the fuzzy buyer
         vm.prank(owner);
         paymentToken.mint(fuzzBuyer, 200_000 * 10 ** decimals);
 
