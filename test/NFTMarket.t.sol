@@ -3,11 +3,11 @@ pragma solidity ^0.8.28;
 
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "../src/NFTMarket.sol";
 import "../src/MyERC20Token.sol";
 import "../src/MyNFT.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract NFTMarketTest is Test {
     NFTMarket public market;
