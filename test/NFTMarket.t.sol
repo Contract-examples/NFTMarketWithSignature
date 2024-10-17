@@ -316,6 +316,28 @@ contract NFTMarketTest is Test {
         assertEq(listedPrice, 0);
     }
 
+    function testUnlistNFTNotTheSeller() public {
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+
+        // list nft
+        market.list(tokenId, price);
+
+        // test unlist nft by not owner
+        tokenId = 1;
+        // set expect revert
+        vm.expectRevert(NFTMarket.NotTheSeller.selector);
+        // unlist nft
+        market.unlist(tokenId);
+
+        vm.stopPrank();
+    }
+
     function testBuyNFTCallback() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
