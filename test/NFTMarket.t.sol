@@ -7,6 +7,7 @@ import "../src/NFTMarket.sol";
 import "../src/MyERC20Token.sol";
 import "../src/MyNFT.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract NFTMarketTest is Test {
     NFTMarket public market;
@@ -22,6 +23,8 @@ contract NFTMarketTest is Test {
     address public buyer3;
     uint256 public tokenId;
 
+    mapping(address => string) private addressLabels;
+
     function setUp() public {
         owner = address(this);
         paymentToken = new MyERC20Token();
@@ -29,12 +32,21 @@ contract NFTMarketTest is Test {
         nftContract = new MyNFT(owner);
         market = new NFTMarket(address(nftContract), address(paymentToken));
 
+        // make address
         seller = makeAddr("seller");
         seller2 = makeAddr("seller2");
         seller3 = makeAddr("seller3");
         buyer = makeAddr("buyer");
         buyer2 = makeAddr("buyer2");
         buyer3 = makeAddr("buyer3");
+
+        // set label
+        addressLabels[seller] = "seller";
+        addressLabels[seller2] = "seller2";
+        addressLabels[seller3] = "seller3";
+        addressLabels[buyer] = "buyer";
+        addressLabels[buyer2] = "buyer2";
+        addressLabels[buyer3] = "buyer3";
 
         // give buyer/buyer2/buyer3 1000 tokens
         paymentToken.mint(buyer, 1000 * 10 ** paymentToken.decimals());
@@ -72,6 +84,15 @@ contract NFTMarketTest is Test {
         }
     }
 
+    // get address label
+    function getAddressLabel(address addr) internal view returns (string memory) {
+        string memory label = addressLabels[addr];
+        if (bytes(label).length == 0) {
+            return Strings.toHexString(uint160(addr), 20);
+        }
+        return string(abi.encodePacked(label, " (", Strings.toHexString(uint160(addr), 20), ")"));
+    }
+
     function testListNFT() public {
         // seller
         {
@@ -93,7 +114,7 @@ contract NFTMarketTest is Test {
             vm.stopPrank(); // stop prank
 
             (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller: listedSeller:", listedSeller);
+            console2.log("seller: listedSeller:", getAddressLabel(listedSeller));
             console2.log("seller: listedPrice:", listedPrice);
             assertEq(listedSeller, seller);
             assertEq(listedPrice, price);
@@ -119,7 +140,7 @@ contract NFTMarketTest is Test {
             vm.stopPrank();
 
             (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller2: listedSeller:", listedSeller);
+            console2.log("seller2: listedSeller:", getAddressLabel(listedSeller));
             console2.log("seller2: listedPrice:", listedPrice);
             assertEq(listedSeller, seller2);
             assertEq(listedPrice, price);
@@ -145,7 +166,7 @@ contract NFTMarketTest is Test {
             vm.stopPrank();
 
             (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller3: listedSeller:", listedSeller);
+            console2.log("seller3: listedSeller:", getAddressLabel(listedSeller));
             console2.log("seller3: listedPrice:", listedPrice);
             assertEq(listedSeller, seller3);
             assertEq(listedPrice, price);
@@ -172,8 +193,8 @@ contract NFTMarketTest is Test {
         market.buyNFT(tokenId);
         vm.stopPrank();
 
-        console2.log("nftContract.ownerOf(tokenId):", nftContract.ownerOf(tokenId));
-        console2.log("buyer:", buyer);
+        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
+        console2.log("buyer:", getAddressLabel(buyer));
         console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
         console2.log("price:", price);
 
@@ -199,7 +220,7 @@ contract NFTMarketTest is Test {
         vm.stopPrank();
 
         (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-        console2.log("listedSeller:", listedSeller);
+        console2.log("listedSeller:", vm.toString(listedSeller));
         console2.log("listedPrice:", listedPrice);
         assertEq(listedSeller, address(0));
         assertEq(listedPrice, 0);
@@ -225,8 +246,8 @@ contract NFTMarketTest is Test {
         paymentToken.transferAndCall(address(market), price, data);
         vm.stopPrank();
 
-        console2.log("nftContract.ownerOf(tokenId):", nftContract.ownerOf(tokenId));
-        console2.log("buyer:", buyer);
+        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
+        console2.log("buyer:", getAddressLabel(buyer));
         console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
         console2.log("price:", price);
 
