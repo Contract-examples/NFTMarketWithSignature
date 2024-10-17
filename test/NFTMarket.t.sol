@@ -176,6 +176,26 @@ contract NFTMarketTest is Test {
         }
     }
 
+    function testListNotOwner() public {
+        // nft price
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // mock seller
+        vm.startPrank(seller);
+
+        // seller's nft tokenId is 0
+        // we set 1 to test not owner
+        tokenId = 1;
+
+        // set expect revert
+        vm.expectRevert(NFTMarket.NotTheOwner.selector);
+
+        // list nft
+        market.list(tokenId, price);
+
+        vm.stopPrank();
+    }
+
     function testListNFTZeroPrice() public {
         // nft price
         uint256 price = 0;
