@@ -4,10 +4,13 @@
 ## Test
 ```
 forge test --match-contract=NFTMarketTest
+forge test --match-contract=NFTMarketInvariantTest
 forge test --match-contract=NFTMarketTest --fork-url arbitrum_sepolia
 ```
 
 ## Test result
+
+### NFTMarketTest
 ```
 Ran 20 tests for test/NFTMarket.t.sol:NFTMarketTest
 [PASS] testBuyNFT() (gas: 194226)
@@ -35,6 +38,16 @@ Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 446.47ms (457.70ms
 Ran 1 test suite in 450.29ms (446.47ms CPU time): 20 tests passed, 0 failed, 0 skipped (20 total tests)
 ```
 
+### NFTMarketInvariantTest
+```
+Ran 3 tests for test/NFTMarket.t.sol:NFTMarketInvariantTest
+[PASS] invariant_listingsAreValid() (runs: 256, calls: 128000, reverts: 128000)
+[PASS] invariant_marketHasNoBalance() (runs: 256, calls: 128000, reverts: 128000)
+[PASS] invariant_nftOwnersHaveCorrectBalance() (runs: 256, calls: 128000, reverts: 128000)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 3.92s (11.11s CPU time)
+
+Ran 1 test suite in 3.92s (3.92s CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)
+```
 
 ## Deploy MyERC20Token/MyNFT
 ```
