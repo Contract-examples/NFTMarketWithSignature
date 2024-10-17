@@ -29,6 +29,7 @@ contract NFTMarket is IERC20Receiver {
     event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
     event NFTSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
     event NFTUnlisted(uint256 indexed tokenId);
+    event Refund(address indexed from, uint256 amount);
 
     // custom structs
     struct Listing {
@@ -146,6 +147,8 @@ contract NFTMarket is IERC20Receiver {
         uint256 refundAmount = amount > listing.price ? amount - listing.price : 0;
         if (refundAmount != 0) {
             paymentToken.safeTransfer(from, refundAmount);
+            // emit the Refund event
+            emit Refund(from, refundAmount);
         }
 
         // transfer the payment token to the seller
@@ -162,6 +165,7 @@ contract NFTMarket is IERC20Receiver {
         Listing memory listing = listings[tokenId];
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         delete listings[tokenId];
+        // emit the NFTSold event
         emit NFTSold(tokenId, listing.seller, buyer, price);
     }
 }
