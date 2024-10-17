@@ -44,9 +44,9 @@ Ran 3 tests for test/NFTMarket.t.sol:NFTMarketInvariantTest
 [PASS] invariant_listingsAreValid() (runs: 256, calls: 128000, reverts: 128000)
 [PASS] invariant_marketHasNoBalance() (runs: 256, calls: 128000, reverts: 128000)
 [PASS] invariant_nftOwnersHaveCorrectBalance() (runs: 256, calls: 128000, reverts: 128000)
-Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 3.92s (11.11s CPU time)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 3.45s (10.23s CPU time)
 
-Ran 1 test suite in 3.92s (3.92s CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)
+Ran 1 test suite in 3.45s (3.45s CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)
 ```
 
 ## Deploy MyERC20Token/MyNFT
