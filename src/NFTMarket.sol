@@ -22,6 +22,8 @@ contract NFTMarket is IERC20Receiver {
     error InsufficientPayment();
     error NoTokenId();
     error TheSenderIsTheSeller();
+    error InvalidPrice();
+    error InvalidSeller();
 
     struct Listing {
         address seller;
@@ -162,6 +164,12 @@ contract NFTMarket is IERC20Receiver {
     // this is our private function to transfer NFT from seller to buyer
     function _safeTransferFromSellerToBuyer(uint256 tokenId, address buyer, uint256 price) private {
         Listing memory listing = listings[tokenId];
+        if (listing.price != price) {
+            revert InvalidPrice();
+        }
+        if (listing.seller == address(0)) {
+            revert InvalidSeller();
+        }
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         delete listings[tokenId];
         emit NFTSold(tokenId, listing.seller, buyer, price);
