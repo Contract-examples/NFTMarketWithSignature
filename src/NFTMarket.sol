@@ -3,13 +3,11 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@solady/utils/SafeTransferLib.sol";
 import "./MyERC20Token.sol";
 import "./IERC20Receiver.sol";
 
 contract NFTMarket is IERC20Receiver {
-    using SafeERC20 for MyERC20Token;
-
     // custom errors
     error NotTheOwner();
     error NFTNotApproved();
@@ -103,7 +101,7 @@ contract NFTMarket is IERC20Receiver {
         }
 
         // transfer the payment token to the seller
-        paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
+        SafeTransferLib.safeTransferFrom(address(paymentToken), msg.sender, listing.seller, listing.price);
 
         // transfer NFT from seller to buyer
         _safeTransferFromSellerToBuyer(tokenId, msg.sender, listing.price);
@@ -152,13 +150,13 @@ contract NFTMarket is IERC20Receiver {
         // if the buyer paid more than the price, refund the extra
         uint256 refundAmount = amount > listing.price ? amount - listing.price : 0;
         if (refundAmount != 0) {
-            paymentToken.safeTransfer(from, refundAmount);
+            SafeTransferLib.safeTransfer(address(paymentToken), from, refundAmount);
             // emit the Refund event
             emit Refund(from, refundAmount);
         }
 
         // transfer the payment token to the seller
-        paymentToken.safeTransfer(listing.seller, listing.price);
+        SafeTransferLib.safeTransfer(address(paymentToken), listing.seller, listing.price);
 
         // transfer NFT from seller to buyer
         _safeTransferFromSellerToBuyer(tokenId, from, listing.price);

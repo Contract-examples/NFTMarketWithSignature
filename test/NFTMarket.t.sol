@@ -425,10 +425,13 @@ contract NFTMarketTest is Test, IERC20Errors {
         // let nft-market contract operate paymentToken (price)
         paymentToken.approve(address(market), price);
 
-        // set expect revert
-        bytes memory expectedError =
-            abi.encodeWithSelector(ERC20InsufficientBalance.selector, buyer, paymentToken.balanceOf(buyer), price);
-        vm.expectRevert(expectedError);
+        // set expect revert (for openzeppelin)
+        // bytes memory expectedError =
+        //     abi.encodeWithSelector(ERC20InsufficientBalance.selector, buyer, paymentToken.balanceOf(buyer), price);
+        // vm.expectRevert(expectedError);
+
+        // set expect revert (for solady)
+        vm.expectRevert(SafeTransferLib.TransferFromFailed.selector);
 
         market.buyNFT(tokenId);
         vm.stopPrank();
