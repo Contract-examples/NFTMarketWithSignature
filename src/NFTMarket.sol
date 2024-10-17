@@ -45,9 +45,7 @@ contract NFTMarket is IERC20Receiver {
     mapping(uint256 => Listing) public listings;
 
     constructor(address _nftContract, address _paymentToken) {
-        // this is our NFT contract
         nftContract = IERC721(_nftContract);
-        // this is our payment token
         paymentToken = MyERC20Token(_paymentToken);
     }
 
