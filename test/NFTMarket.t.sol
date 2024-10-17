@@ -184,7 +184,7 @@ contract NFTMarketTest is Test {
         vm.startPrank(seller);
 
         // seller's nft tokenId is 0
-        // we set 1 to test not owner
+        // we set 1 to test "not owner"
         tokenId = 1;
 
         // set expect revert
