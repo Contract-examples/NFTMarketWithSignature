@@ -109,7 +109,7 @@ contract NFTMarketTest is Test {
             // seller's nft tokenId is 0
             tokenId = 0;
 
-            // approve nft-market to transfer nft by tokenId
+            // let nft-market contract operate nft contract (tokenID)
             nftContract.approve(address(market), tokenId);
 
             // list nft
@@ -135,7 +135,7 @@ contract NFTMarketTest is Test {
             // seller2's nft tokenId is 1
             tokenId = 1;
 
-            // approve nft-market to transfer nft by tokenId
+            // let nft-market contract operate nft contract (tokenID)
             nftContract.approve(address(market), tokenId);
 
             // list nft
@@ -161,7 +161,7 @@ contract NFTMarketTest is Test {
             // seller3's nft tokenId is 2
             tokenId = 2;
 
-            // approve nft-market to transfer nft by tokenId
+            // let nft-market contract operate nft contract (tokenID)
             nftContract.approve(address(market), tokenId);
 
             // list nft
@@ -187,7 +187,7 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // set expect revert
@@ -232,7 +232,7 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // set expect revert
@@ -254,7 +254,7 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // expect emit NFTListed event
@@ -275,7 +275,7 @@ contract NFTMarketTest is Test {
 
         vm.startPrank(seller);
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -301,7 +301,7 @@ contract NFTMarketTest is Test {
 
         vm.startPrank(seller);
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -325,7 +325,7 @@ contract NFTMarketTest is Test {
 
         vm.startPrank(seller);
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -349,7 +349,7 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
 
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -358,6 +358,7 @@ contract NFTMarketTest is Test {
 
         // buyer buy nft
         vm.startPrank(buyer);
+        // let nft-market contract operate paymentToken (price)
         paymentToken.approve(address(market), price);
         market.buyNFT(tokenId);
         vm.stopPrank();
@@ -379,6 +380,8 @@ contract NFTMarketTest is Test {
 
         // buyer buy nft
         vm.startPrank(buyer);
+
+        // let nft-market contract operate paymentToken (price)
         paymentToken.approve(address(market), price);
 
         // set expect revert
@@ -394,12 +397,12 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
         vm.startPrank(seller);
-        // approve nft-market to transfer nft by tokenId
+        // let nft-market contract operate paymentToken
         nftContract.approve(address(market), tokenId);
         // list nft
         market.list(tokenId, price);
 
-        // buyer buy nft
+        // let nft-market contract operate paymentToken (price)
         paymentToken.approve(address(market), price);
 
         // set expect revert
@@ -417,6 +420,7 @@ contract NFTMarketTest is Test {
 
         // list nft
         vm.startPrank(seller);
+        // let nft-market contract operate nft contract (tokenID)
         nftContract.approve(address(market), tokenId);
         market.list(tokenId, price);
         vm.stopPrank();
