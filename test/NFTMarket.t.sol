@@ -271,6 +271,7 @@ contract NFTMarketTest is Test {
         // seller's nft tokenId is 0
         tokenId = 0;
 
+        // approve nft-market to transfer nft by tokenId
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -299,6 +300,8 @@ contract NFTMarketTest is Test {
         tokenId = 0;
 
         vm.startPrank(seller);
+
+        // approve nft-market to transfer nft by tokenId
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -323,6 +326,8 @@ contract NFTMarketTest is Test {
         tokenId = 0;
 
         vm.startPrank(seller);
+
+        // approve nft-market to transfer nft by tokenId
         nftContract.approve(address(market), tokenId);
 
         // list nft
@@ -345,6 +350,8 @@ contract NFTMarketTest is Test {
         tokenId = 0;
 
         vm.startPrank(seller);
+
+        // approve nft-market to transfer nft by tokenId
         nftContract.approve(address(market), tokenId);
 
         // list nft
