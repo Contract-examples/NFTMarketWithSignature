@@ -107,6 +107,9 @@ contract NFTMarket is IERC20Receiver {
 
         // transfer NFT from seller to buyer
         _safeTransferFromSellerToBuyer(tokenId, msg.sender, listing.price);
+
+        // emit the NFTSold event
+        emit NFTSold(tokenId, listing.seller, msg.sender, listing.price);
     }
 
     // this is our callback function
@@ -157,6 +160,9 @@ contract NFTMarket is IERC20Receiver {
         // transfer NFT from seller to buyer
         _safeTransferFromSellerToBuyer(tokenId, from, listing.price);
 
+        // emit the NFTSold event
+        emit NFTSold(tokenId, listing.seller, from, listing.price);
+
         return true;
     }
 
@@ -165,7 +171,5 @@ contract NFTMarket is IERC20Receiver {
         Listing memory listing = listings[tokenId];
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         delete listings[tokenId];
-        // emit the NFTSold event
-        emit NFTSold(tokenId, listing.seller, buyer, price);
     }
 }
