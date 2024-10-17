@@ -98,6 +98,11 @@ contract NFTMarket is IERC20Receiver {
             revert NFTNotListed();
         }
 
+        // make sure the sender is not the seller
+        if (msg.sender == listing.seller) {
+            revert TheSenderIsTheSeller();
+        }
+
         // transfer the payment token to the seller
         paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
 
