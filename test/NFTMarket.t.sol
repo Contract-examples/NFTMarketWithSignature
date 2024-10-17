@@ -67,6 +67,12 @@ contract NFTMarketTest is Test {
 
         // mock owner
         vm.prank(owner);
+
+        // mint nft to owner
+        nftContract.safeMint(owner, "ipfs://owner-001");
+        nftContract.safeMint(owner, "ipfs://owner-002");
+        nftContract.safeMint(owner, "ipfs://owner-003");
+
         // let owner mint nft to seller
         nftContract.safeMint(seller, "ipfs://test-url-001");
         nftContract.safeMint(seller2, "ipfs://test-url-002");
