@@ -310,7 +310,7 @@ contract NFTMarketTest is Test {
         // test unlist nft by not owner
         tokenId = 1;
         // set expect revert
-        vm.expectRevert(NFTMarket.NotTheSeller.selector);
+        vm.expectRevert(NFTMarket.NotSellerOrNotListed.selector);
         // unlist nft
         market.unlist(tokenId);
 

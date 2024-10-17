@@ -14,7 +14,7 @@ contract NFTMarket is IERC20Receiver {
     error NotTheOwner();
     error NFTNotApproved();
     error PriceMustBeGreaterThanZero();
-    error NotTheSeller();
+    error NotSellerOrNotListed();
     error NFTNotListed();
     error TokenTransferFailed();
     error InvalidToken();
@@ -65,8 +65,8 @@ contract NFTMarket is IERC20Receiver {
             revert NFTNotApproved();
         }
 
-        // make sure the price is greater than zero
-        if (price <= 0) {
+        // make sure the price is not zero
+        if (price == 0) {
             revert PriceMustBeGreaterThanZero();
         }
 
@@ -81,7 +81,7 @@ contract NFTMarket is IERC20Receiver {
     function unlist(uint256 tokenId) external {
         // make sure the sender is the seller of the NFT
         if (listings[tokenId].seller != msg.sender) {
-            revert NotTheSeller();
+            revert NotSellerOrNotListed();
         }
 
         // remove the listing from the mapping
@@ -95,10 +95,9 @@ contract NFTMarket is IERC20Receiver {
     function buyNFT(uint256 tokenId) external {
         Listing memory listing = listings[tokenId];
         // make sure the NFT is listed
-        if (listing.price <= 0) {
+        if (listing.price == 0) {
             revert NFTNotListed();
         }
-
         // make sure the sender is not the seller
         if (msg.sender == listing.seller) {
             revert TheSenderIsTheSeller();
@@ -107,14 +106,8 @@ contract NFTMarket is IERC20Receiver {
         // transfer the payment token to the seller
         paymentToken.safeTransferFrom(msg.sender, listing.seller, listing.price);
 
-        // transfer the NFT to the buyer
-        nftContract.safeTransferFrom(listing.seller, msg.sender, tokenId);
-
-        // remove the listing from the mapping
-        delete listings[tokenId];
-
-        // emit the NFTSold event
-        emit NFTSold(tokenId, listing.seller, msg.sender, listing.price);
+        // process the purchase
+        _processPurchase(tokenId, msg.sender, listing.price);
     }
 
     // this is our callback function
@@ -128,52 +121,49 @@ contract NFTMarket is IERC20Receiver {
         override
         returns (bool)
     {
-        // make sure msg.sender is the payment token
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();
         }
-
-        // make sure 'to' is the NFTMarket contract
         if (to != address(this)) {
             revert InvalidRecipient();
         }
-
-        // make sure userData is valid
         if (userData.length <= 0) {
             revert NoTokenId();
         }
 
-        // decode userData to get tokenId
         uint256 tokenId = abi.decode(userData, (uint256));
-
         Listing memory listing = listings[tokenId];
-        // this is our require statement to check if the NFT is listed
-        if (listing.price <= 0) {
+
+        // make sure the NFT is listed
+        if (listing.price == 0) {
             revert NFTNotListed();
         }
 
-        // this is our require statement to check if the payment is sufficient
+        // make sure the buyer paid enough
         if (amount < listing.price) {
             revert InsufficientPayment();
         }
 
-        // remove the listing from the mapping
-        delete listings[tokenId];
+        // if the buyer paid more than the price, refund the extra
+        uint256 refundAmount = amount > listing.price ? amount - listing.price : 0;
+        if (refundAmount != 0) {
+            paymentToken.safeTransfer(from, refundAmount);
+        }
 
         // transfer the payment token to the seller
         paymentToken.safeTransfer(listing.seller, listing.price);
 
-        // transfer the NFT to the buyer
-        nftContract.safeTransferFrom(listing.seller, from, tokenId);
-
-        // if the buyer paid more than the price, refund the extra
-        if (amount > listing.price) {
-            paymentToken.safeTransfer(from, amount - listing.price);
-        }
-
-        // emit the NFTSold event
-        emit NFTSold(tokenId, listing.seller, from, listing.price);
+        // process the purchase
+        _processPurchase(tokenId, from, listing.price);
 
         return true;
+    }
+
+    // this is our internal function to process the purchase
+    function _processPurchase(uint256 tokenId, address buyer, uint256 price) internal {
+        Listing memory listing = listings[tokenId];
+        nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
+        delete listings[tokenId];
+        emit NFTSold(tokenId, listing.seller, buyer, price);
     }
 }
