@@ -3,13 +3,15 @@ pragma solidity ^0.8.28;
 
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../src/NFTMarket.sol";
 import "../src/MyERC20Token.sol";
 import "../src/MyNFT.sol";
 
-contract NFTMarketTest is Test {
+contract NFTMarketTest is Test, IERC20Errors {
     NFTMarket public market;
     MyERC20Token public paymentToken;
     MyNFT public nftContract;
@@ -372,6 +374,36 @@ contract NFTMarketTest is Test {
         assertEq(paymentToken.balanceOf(seller), price);
     }
 
+    function testBuyNFTInsufficientBalance() public {
+        // set a very high price to test insufficient balance
+        uint256 price = 20_000_000 * 10 ** paymentToken.decimals();
+
+        vm.startPrank(seller);
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // let nft-market contract operate nft contract (tokenID)
+        nftContract.approve(address(market), tokenId);
+
+        // list nft
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer buy nft
+        vm.startPrank(buyer);
+        // let nft-market contract operate paymentToken (price)
+        paymentToken.approve(address(market), price);
+
+        // set expect revert
+        bytes memory expectedError =
+            abi.encodeWithSelector(ERC20InsufficientBalance.selector, buyer, paymentToken.balanceOf(buyer), price);
+        vm.expectRevert(expectedError);
+
+        market.buyNFT(tokenId);
+        vm.stopPrank();
+    }
+
     function testBuyNFTNotListed() public {
         uint256 price = 100 * 10 ** paymentToken.decimals();
 
@@ -409,6 +441,33 @@ contract NFTMarketTest is Test {
         vm.expectRevert(NFTMarket.TheSenderIsTheSeller.selector);
         market.buyNFT(tokenId);
 
+        vm.stopPrank();
+    }
+
+    function testBuyNFTEmitEvent() public {
+        uint256 price = 10 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+        vm.startPrank(seller);
+
+        // let nft-market contract operate nft contract (tokenID)
+        nftContract.approve(address(market), tokenId);
+
+        // list nft
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer buy nft
+        vm.startPrank(buyer);
+        // let nft-market contract operate paymentToken (price)
+        paymentToken.approve(address(market), price);
+
+        // expect emit NFTSold event
+        vm.expectEmit(true, true, false, true);
+        emit NFTMarket.NFTSold(tokenId, seller, buyer, price);
+
+        market.buyNFT(tokenId);
         vm.stopPrank();
     }
 
