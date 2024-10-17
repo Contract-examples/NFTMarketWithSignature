@@ -4,7 +4,7 @@
 ## Test
 ```
 forge test --match-contract=NFTMarketTest -vv
-forge test --match-contract=NFTMarketTest  --fork-url arbitrum_sepolia -vv
+forge test --match-contract=NFTMarketTest --fork-url arbitrum_sepolia -vv
 ```
 
 ## Test result
