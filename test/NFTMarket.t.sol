@@ -223,7 +223,7 @@ contract NFTMarketTest is Test {
         vm.stopPrank();
 
         (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-        console2.log("listedSeller:", vm.toString(listedSeller));
+        console2.log("listedSeller:", getAddressLabel(listedSeller));
         console2.log("listedPrice:", listedPrice);
         assertEq(listedSeller, address(0));
         assertEq(listedPrice, 0);
