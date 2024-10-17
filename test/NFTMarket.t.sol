@@ -176,6 +176,28 @@ contract NFTMarketTest is Test {
         }
     }
 
+    function testListNFTZeroPrice() public {
+        // nft price
+        uint256 price = 0;
+
+        // mock seller
+        vm.startPrank(seller);
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // approve nft-market to transfer nft by tokenId
+        nftContract.approve(address(market), tokenId);
+
+        // set expect revert
+        vm.expectRevert(NFTMarket.PriceMustBeGreaterThanZero.selector);
+
+        // list nft
+        market.list(tokenId, price);
+
+        vm.stopPrank();
+    }
+
     function testBuyNFT() public {
         uint256 price = 200 * 10 ** paymentToken.decimals();
 
