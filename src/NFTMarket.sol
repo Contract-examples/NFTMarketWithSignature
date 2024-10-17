@@ -123,9 +123,11 @@ contract NFTMarket is IERC20Receiver {
         override
         returns (bool)
     {
+        // make sure the sender is the payment token
         if (msg.sender != address(paymentToken)) {
             revert InvalidToken();
         }
+        // make sure the recipient is the NFTMarket contract
         if (to != address(this)) {
             revert InvalidRecipient();
         }
@@ -135,6 +137,7 @@ contract NFTMarket is IERC20Receiver {
             revert NoTokenId();
         }
 
+        // decode the userData to get the tokenId
         uint256 tokenId = abi.decode(userData, (uint256));
         Listing memory listing = listings[tokenId];
 
@@ -169,7 +172,9 @@ contract NFTMarket is IERC20Receiver {
     // this is our private function to transfer NFT from seller to buyer
     function _safeTransferFromSellerToBuyer(uint256 tokenId, address buyer, uint256 price) private {
         Listing memory listing = listings[tokenId];
+        // transfer NFT from seller to buyer
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
+        // delete the listing
         delete listings[tokenId];
     }
 }
