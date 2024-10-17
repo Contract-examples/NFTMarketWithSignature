@@ -525,4 +525,32 @@ contract NFTMarketTest is Test, IERC20Errors {
         paymentToken.transferAndCall(address(market), price, data);
         vm.stopPrank();
     }
+
+    function testBuyNFTCallbackInsufficientPayment() public {
+        // set a very high price to test insufficient balance
+        uint256 price = 20_000_000 * 10 ** paymentToken.decimals();
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // list nft
+        vm.startPrank(seller);
+        // let nft-market contract operate nft contract (tokenID)
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, price);
+        vm.stopPrank();
+
+        // buyer transfer to market contract
+        vm.startPrank(buyer);
+        bytes memory data = abi.encode(tokenId);
+
+        // set expect revert
+        bytes memory expectedError =
+            abi.encodeWithSelector(ERC20InsufficientBalance.selector, buyer, paymentToken.balanceOf(buyer), price);
+        vm.expectRevert(expectedError);
+
+        // transfer token to nft-market contract and call buyNFT
+        paymentToken.transferAndCall(address(market), price, data);
+        vm.stopPrank();
+    }
 }
