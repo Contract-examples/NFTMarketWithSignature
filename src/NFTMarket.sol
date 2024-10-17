@@ -30,6 +30,7 @@ contract NFTMarket is IERC20Receiver {
     event NFTSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
     event NFTUnlisted(uint256 indexed tokenId);
 
+    // custom structs
     struct Listing {
         address seller;
         uint256 price;
