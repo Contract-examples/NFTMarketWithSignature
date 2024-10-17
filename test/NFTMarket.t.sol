@@ -187,8 +187,30 @@ contract NFTMarketTest is Test {
         // we set 1 to test "not owner"
         tokenId = 1;
 
+        // approve nft-market to transfer nft by tokenId
+        nftContract.approve(address(market), tokenId);
+
         // set expect revert
         vm.expectRevert(NFTMarket.NotTheOwner.selector);
+
+        // list nft
+        market.list(tokenId, price);
+
+        vm.stopPrank();
+    }
+
+    function testListNFTNotApproved() public {
+        // nft price
+        uint256 price = 100 * 10 ** paymentToken.decimals();
+
+        // mock seller
+        vm.startPrank(seller);
+
+        // seller's nft tokenId is 0
+        tokenId = 0;
+
+        // set expect revert
+        vm.expectRevert(NFTMarket.NFTNotApproved.selector);
 
         // list nft
         market.list(tokenId, price);
