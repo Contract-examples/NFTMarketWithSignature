@@ -3,7 +3,7 @@
 
 ## Test
 ```
-forge test --match-contract NFTMarketTest -vv
+forge test --match-contract=NFTMarketTest  --rpc-url arbitrum_sepolia -vv
 ```
 
 ## Test result
@@ -56,14 +56,11 @@ Logs:
   NFT owner: 0x0000000000000000000000000000000000000001
   Index: 0, Minted NFT with ID: 1
   NFT owner: 0x0000000000000000000000000000000000000002
-  Index: 0, Minted NFT with ID: 2
   NFT owner: 0x0000000000000000000000000000000000000003
   listedSeller: 0x0000000000000000000000000000000000000000
   listedPrice: 0
 
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 1.62ms (1.73ms CPU time)
-
-Ran 1 test suite in 13.82ms (1.62ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 4.82s (575.04ms CPU time)
 ```
 
 
