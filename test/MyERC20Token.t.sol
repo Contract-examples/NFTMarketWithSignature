@@ -17,7 +17,7 @@ contract MyERC20TokenTest is Test {
         console2.log("user1", user1);
         user2 = address(0x2);
         console2.log("user2", user2);
-        token = new MyERC20Token();
+        token = new MyERC20Token("MyNFTToken", "MTK");
         console2.log("token", address(token));
     }
 
