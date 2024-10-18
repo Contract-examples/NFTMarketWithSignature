@@ -9,7 +9,7 @@ contract MyERC20Token is ERC20, Ownable {
     // custom error
     error TokensReceivedFailed();
 
-    constructor() ERC20("MyNFTToken", "MTK") Ownable(msg.sender) {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) Ownable(msg.sender) {
         // mint 1000000 tokens to the owner
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
