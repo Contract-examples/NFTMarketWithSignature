@@ -99,84 +99,29 @@ contract NFTMarketTest is Test, IERC20Errors {
         }
     }
 
-    function testListNFT() public {
-        // seller
-        {
-            // nft price
-            uint256 price = 100 * 10 ** paymentToken.decimals();
+    function testListNFT(uint8 sellerIndex, uint256 price) public {
+        vm.assume(sellerIndex < 3 && price > 0 && price <= 1000 * 10 ** paymentToken.decimals());
 
-            // mock seller
-            vm.startPrank(seller);
+        address[] memory sellers = new address[](3);
+        sellers[0] = seller;
+        sellers[1] = seller2;
+        sellers[2] = seller3;
 
-            // seller's nft tokenId is 0
-            tokenId = 0;
+        address currentSeller = sellers[sellerIndex];
+        uint256 tokenId = sellerIndex;
 
-            // let nft-market contract operate nft contract (tokenID)
-            nftContract.approve(address(market), tokenId);
+        vm.startPrank(currentSeller);
 
-            // list nft
-            market.list(tokenId, price);
+        nftContract.approve(address(market), tokenId);
+        market.list(tokenId, price);
 
-            vm.stopPrank(); // stop prank
+        vm.stopPrank();
 
-            (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller: listedSeller:", getAddressLabel(listedSeller));
-            console2.log("seller: listedPrice:", listedPrice);
-            assertEq(listedSeller, seller);
-            assertEq(listedPrice, price);
-        }
-
-        // seller2
-        {
-            // nft price
-            uint256 price = 100 * 10 ** paymentToken.decimals();
-
-            // mock seller2
-            vm.startPrank(seller2);
-
-            // seller2's nft tokenId is 1
-            tokenId = 1;
-
-            // let nft-market contract operate nft contract (tokenID)
-            nftContract.approve(address(market), tokenId);
-
-            // list nft
-            market.list(tokenId, price);
-
-            vm.stopPrank();
-
-            (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller2: listedSeller:", getAddressLabel(listedSeller));
-            console2.log("seller2: listedPrice:", listedPrice);
-            assertEq(listedSeller, seller2);
-            assertEq(listedPrice, price);
-        }
-
-        // seller3
-        {
-            // nft price
-            uint256 price = 100 * 10 ** paymentToken.decimals();
-
-            // mock seller3
-            vm.startPrank(seller3);
-
-            // seller3's nft tokenId is 2
-            tokenId = 2;
-
-            // let nft-market contract operate nft contract (tokenID)
-            nftContract.approve(address(market), tokenId);
-
-            // list nft
-            market.list(tokenId, price);
-
-            vm.stopPrank();
-
-            (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-            console2.log("seller3: listedSeller:", getAddressLabel(listedSeller));
-            console2.log("seller3: listedPrice:", listedPrice);
-            assertEq(listedSeller, seller3);
-            assertEq(listedPrice, price);
-        }
+        (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
+        console2.log("Seller: listedSeller:", getAddressLabel(listedSeller));
+        console2.log("Seller: listedPrice:", listedPrice);
+        assertEq(listedSeller, currentSeller);
+        assertEq(listedPrice, price);
     }
 
     function testListNotOwner() public {
