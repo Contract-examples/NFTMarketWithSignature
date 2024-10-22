@@ -25,19 +25,6 @@ contract NFTMarketTest is Test, IERC20Errors {
     address public buyer3;
     uint256 public tokenId;
 
-    mapping(address => string) private addressLabels;
-
-    // get address label
-    function getAddressLabel(address addr) internal view returns (string memory) {
-        string memory label = addressLabels[addr];
-        if (bytes(label).length == 0) {
-            // if not set, return hex string
-            return Strings.toHexString(uint160(addr), 20);
-        }
-        // if set, return label
-        return string(abi.encodePacked(label, " (", Strings.toHexString(uint160(addr), 20), ")"));
-    }
-
     function setUp() public {
         owner = address(this);
         paymentToken = new MyERC20Token("MyNFTToken", "MTK");
@@ -52,15 +39,6 @@ contract NFTMarketTest is Test, IERC20Errors {
         buyer = makeAddr("buyer");
         buyer2 = makeAddr("buyer2");
         buyer3 = makeAddr("buyer3");
-
-        // set label
-        addressLabels[owner] = "owner";
-        addressLabels[seller] = "seller";
-        addressLabels[seller2] = "seller2";
-        addressLabels[seller3] = "seller3";
-        addressLabels[buyer] = "buyer";
-        addressLabels[buyer2] = "buyer2";
-        addressLabels[buyer3] = "buyer3";
 
         // give buyer/buyer2/buyer3 1000 tokens
         paymentToken.mint(buyer, 20_000 * 10 ** paymentToken.decimals());
@@ -81,21 +59,21 @@ contract NFTMarketTest is Test, IERC20Errors {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
+            console2.log("NFT owner:", vm.getLabel(nftContract.ownerOf(currentTokenId)));
         }
         // seller2
         {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller2, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
+            console2.log("NFT owner:", vm.getLabel(nftContract.ownerOf(currentTokenId)));
         }
         // seller3
         {
             uint256 i = 0; // set idx = 0
             uint256 currentTokenId = nftContract.tokenOfOwnerByIndex(seller3, i);
             console2.log("Index: %s, Minted NFT with ID: %s", i, currentTokenId);
-            console2.log("NFT owner:", getAddressLabel(nftContract.ownerOf(currentTokenId)));
+            console2.log("NFT owner:", vm.getLabel(nftContract.ownerOf(currentTokenId)));
         }
     }
 
@@ -118,7 +96,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.stopPrank();
 
         (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-        console2.log("Seller: listedSeller:", getAddressLabel(listedSeller));
+        console2.log("Seller: listedSeller:", vm.getLabel(listedSeller));
         console2.log("Seller: listedPrice:", listedPrice);
         assertEq(listedSeller, currentSeller);
         assertEq(listedPrice, price);
@@ -234,7 +212,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.stopPrank();
 
         (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
-        console2.log("listedSeller:", getAddressLabel(listedSeller));
+        console2.log("listedSeller:", vm.getLabel(listedSeller));
         console2.log("listedPrice:", listedPrice);
         assertEq(listedSeller, address(0));
         assertEq(listedPrice, 0);
@@ -310,8 +288,8 @@ contract NFTMarketTest is Test, IERC20Errors {
         market.buyNFT(tokenId);
         vm.stopPrank();
 
-        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
-        console2.log("buyer:", getAddressLabel(buyer));
+        console2.log("nftContract.ownerOf(tokenId):", vm.getLabel(nftContract.ownerOf(tokenId)));
+        console2.log("buyer:", vm.getLabel(buyer));
         console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
         console2.log("price:", price);
 
@@ -470,8 +448,8 @@ contract NFTMarketTest is Test, IERC20Errors {
         paymentToken.transferAndCall(address(market), price, data);
         vm.stopPrank();
 
-        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
-        console2.log("buyer:", getAddressLabel(buyer));
+        console2.log("nftContract.ownerOf(tokenId):", vm.getLabel(nftContract.ownerOf(tokenId)));
+        console2.log("buyer:", vm.getLabel(buyer));
         console2.log("paymentToken.balanceOf(seller):", paymentToken.balanceOf(seller));
         console2.log("price:", price);
 
@@ -588,8 +566,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         address fuzzBuyer = vm.addr(buyerSeed);
         // Ensure fuzzBuyer is not the seller
         vm.assume(fuzzBuyer != seller && fuzzBuyer != address(0));
-        addressLabels[fuzzBuyer] = "fuzzBuyer";
-        console2.log("fuzzBuyer:", getAddressLabel(fuzzBuyer));
+        console2.log("fuzzBuyer:", vm.getLabel(fuzzBuyer));
 
         // Mint 200_000 tokens to the fuzzy buyer
         vm.prank(owner);
@@ -613,8 +590,8 @@ contract NFTMarketTest is Test, IERC20Errors {
         market.buyNFT(tokenId);
         vm.stopPrank();
 
-        console2.log("nftContract.ownerOf(tokenId):", getAddressLabel(nftContract.ownerOf(tokenId)));
-        console2.log("fuzzBuyer:", getAddressLabel(fuzzBuyer));
+        console2.log("nftContract.ownerOf(tokenId):", vm.getLabel(nftContract.ownerOf(tokenId)));
+        console2.log("fuzzBuyer:", vm.getLabel(fuzzBuyer));
 
         // Assert the NFT ownership and token balances
         assertEq(nftContract.ownerOf(tokenId), fuzzBuyer);
@@ -622,7 +599,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         assertEq(paymentToken.balanceOf(fuzzBuyer), beforeBalanceOfFuzzBuyer - price);
 
         console2.log("Fuzzy test passed with price:", price);
-        console2.log("Buyer:", getAddressLabel(fuzzBuyer));
+        console2.log("Buyer:", vm.getLabel(fuzzBuyer));
     }
 
     function testNoTokenBalanceInMarket() public {
