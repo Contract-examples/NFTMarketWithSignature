@@ -560,10 +560,8 @@ contract NFTMarketTest is Test, IERC20Errors {
         price = bound(price, minPrice, maxPrice);
         console2.log("Bound result", price);
 
-        // private keys range is 1-0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140
-        buyerSeed = bound(buyerSeed, 1, 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140);
         // Generate a valid EOA address for the buyer randomly
-        address fuzzBuyer = vm.addr(buyerSeed);
+        address fuzzBuyer = address(uint160(uint256(keccak256(abi.encode(buyerSeed)))));
         // Ensure fuzzBuyer is not the seller
         vm.assume(fuzzBuyer != seller && fuzzBuyer != address(0));
         console2.log("fuzzBuyer:", vm.getLabel(fuzzBuyer));
