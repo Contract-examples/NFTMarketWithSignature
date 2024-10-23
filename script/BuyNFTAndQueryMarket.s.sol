@@ -14,11 +14,11 @@ contract BuyNFTAndQueryMarketScript is Script {
         address buyer = vm.addr(buyerPrivateKey);
 
         // replace your nft market contract address
-        address marketAddress = 0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F;
+        address marketAddress = 0x98A566801FF66d156971ADa3f6D729eFBABD67Ca;
         // replace your nft contract address
-        address nftAddress = 0x0C9411984a111B26F2518e70D3731779103c9c35;
+        address nftAddress = 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d;
         // replace your payment token contract address
-        address tokenAddress = 0x54f0bcb385F758e38eBb3E5085abAb3dB1Cf3153;
+        address tokenAddress = 0x6343c4a548F5f75b47Cdd1A52a52eF89bC29A5eB;
 
         NFTMarket market = NFTMarket(marketAddress);
         MyNFT nft = MyNFT(nftAddress);

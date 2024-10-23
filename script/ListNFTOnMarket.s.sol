@@ -13,11 +13,11 @@ contract ListNFTOnMarketScript is Script {
         address seller = vm.addr(privateKey);
 
         // replace your nft market contract address
-        address marketAddress = 0xEaBDC6F5FC592520163729bDFAe1bD891DbE9b4F;
+        address marketAddress = 0x98A566801FF66d156971ADa3f6D729eFBABD67Ca;
         NFTMarket market = NFTMarket(marketAddress);
 
         // replace your nft contract address
-        address nftAddress = 0x0C9411984a111B26F2518e70D3731779103c9c35;
+        address nftAddress = 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d;
         MyNFT nft = MyNFT(nftAddress);
 
         // sell tokenId 0
