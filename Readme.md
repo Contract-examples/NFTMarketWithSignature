@@ -51,6 +51,6 @@ forge script script/DeployMyNFT.s.sol:DeployMyNFT --rpc-url arbitrum_sepolia --b
 https://sepolia.arbiscan.io/address/0x6343c4a548F5f75b47Cdd1A52a52eF89bC29A5eB
 MyERC20Token address: 0x6343c4a548F5f75b47Cdd1A52a52eF89bC29A5eB
 
-https://sepolia.arbiscan.io/address/0x0C9411984a111B26F2518e70D3731779103c9c35
-NFT address: 0x0C9411984a111B26F2518e70D3731779103c9c35
+https://sepolia.arbiscan.io/address/0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
+NFT address: 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
 ```
