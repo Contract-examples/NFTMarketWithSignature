@@ -28,7 +28,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
 
     uint256 public tokenId;
 
-    function setUp() public {
+    function run() external {
         whitelistBuyerPrivateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY2");
         whitelistSignerPrivateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY");
         whitelistBuyer = vm.addr(whitelistBuyerPrivateKey);
@@ -49,10 +49,6 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         paymentToken = MyERC20PermitToken(tokenAddress);
 
         tokenId = 1;
-    }
-
-    function run() external {
-        //setUp();
 
         vm.startBroadcast(whitelistBuyerPrivateKey);
 
