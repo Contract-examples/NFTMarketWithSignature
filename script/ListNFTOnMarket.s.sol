@@ -8,6 +8,7 @@ import "../src/MyNFT.sol";
 
 contract ListNFTOnMarketScript is Script {
     function run() external {
+        //TODO encrypt private key
         uint256 privateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY");
         address seller = vm.addr(privateKey);
 

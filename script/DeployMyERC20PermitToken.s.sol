@@ -9,6 +9,7 @@ contract DeployMyERC20PermitTokenScript is Script {
     function setUp() public { }
 
     function run() public {
+        //TODO encrypt private key
         uint256 deployerPrivateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY");
         address deployerAddress = vm.addr(deployerPrivateKey);
 

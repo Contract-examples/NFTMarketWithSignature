@@ -9,6 +9,7 @@ import "../src/MyERC20PermitToken.sol";
 
 contract BuyNFTAndQueryMarketScript is Script {
     function run() external {
+        //TODO encrypt private key
         uint256 buyerPrivateKey = vm.envUint("SEPOLIA_WALLET_PRIVATE_KEY2");
         address buyer = vm.addr(buyerPrivateKey);
 
