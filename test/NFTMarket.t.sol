@@ -78,7 +78,13 @@ contract NFTMarketTest is Test, IERC20Errors {
     }
 
     function testListNFT(uint8 sellerIndex, uint256 price) public {
-        vm.assume(sellerIndex < 3 && price > 0 && price <= 1000 * 10 ** paymentToken.decimals());
+        // limit sellerIndex
+        sellerIndex = uint8(bound(uint256(sellerIndex), 0, 2));
+
+        // set a reasonable price range
+        uint256 minPrice = 1; // minimum price is 1 wei
+        uint256 maxPrice = 1000 * 10 ** paymentToken.decimals(); // maximum price remains the same
+        price = bound(price, minPrice, maxPrice);
 
         address[] memory sellers = new address[](3);
         sellers[0] = seller;
