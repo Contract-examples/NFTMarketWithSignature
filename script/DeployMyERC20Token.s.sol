@@ -15,7 +15,7 @@ contract DeployMyERC20TokenScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // deploy MyERC20Token
-        MyERC20Token token = new MyERC20Token("MyNFTToken", "MTK");
+        MyERC20Token token = new MyERC20Token("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
         console2.log("MyERC20Token deployed to:", address(token));
 
         console2.log("Deployed by:", deployerAddress);

@@ -3,15 +3,24 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "./IERC20Receiver.sol";
 
-contract MyERC20Token is ERC20, Ownable {
+contract MyERC20Token is ERC20, ERC20Permit, Ownable {
     // custom error
     error TokensReceivedFailed();
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) Ownable(msg.sender) {
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply
+    )
+        ERC20Permit(name)
+        ERC20(name, symbol)
+        Ownable(msg.sender)
+    {
         // mint 1000000 tokens to the owner
-        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+        _mint(msg.sender, initialSupply);
     }
 
     // only owner can mint
