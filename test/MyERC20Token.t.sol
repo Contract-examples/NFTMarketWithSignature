@@ -2,10 +2,10 @@
 pragma solidity ^0.8.28;
 
 import "forge-std/Test.sol";
-import "../src/MyERC20Token.sol";
+import "../src/MyERC20PermitToken.sol";
 
-contract MyERC20TokenTest is Test {
-    MyERC20Token public token;
+contract MyERC20PermitTokenTest is Test {
+    MyERC20PermitToken public token;
     address public owner;
     address public user1;
     address public user2;
@@ -17,7 +17,7 @@ contract MyERC20TokenTest is Test {
         console2.log("user1", user1);
         user2 = address(0x2);
         console2.log("user2", user2);
-        token = new MyERC20Token("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
+        token = new MyERC20PermitToken("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
         console2.log("token", address(token));
     }
 

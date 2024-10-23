@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "./IERC20Receiver.sol";
 
-contract MyERC20Token is ERC20, ERC20Permit, Ownable {
+contract MyERC20PermitToken is ERC20, ERC20Permit, Ownable {
     // custom error
     error TokensReceivedFailed();
 

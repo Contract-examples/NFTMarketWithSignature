@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@solady/utils/SafeTransferLib.sol";
-import "./MyERC20Token.sol";
+import "./MyERC20PermitToken.sol";
 import "./IERC20Receiver.sol";
 
 contract NFTMarket is IERC20Receiver {
@@ -36,7 +36,7 @@ contract NFTMarket is IERC20Receiver {
     }
 
     // this is our payment token
-    MyERC20Token public immutable paymentToken;
+    MyERC20PermitToken public immutable paymentToken;
     // this is our NFT contract
     IERC721 public immutable nftContract;
 
@@ -45,7 +45,7 @@ contract NFTMarket is IERC20Receiver {
 
     constructor(address _nftContract, address _paymentToken) {
         nftContract = IERC721(_nftContract);
-        paymentToken = MyERC20Token(_paymentToken);
+        paymentToken = MyERC20PermitToken(_paymentToken);
     }
 
     // this is our function to list an NFT

@@ -8,12 +8,12 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../src/NFTMarket.sol";
-import "../src/MyERC20Token.sol";
+import "../src/MyERC20PermitToken.sol";
 import "../src/MyNFT.sol";
 
 contract NFTMarketTest is Test, IERC20Errors {
     NFTMarket public market;
-    MyERC20Token public paymentToken;
+    MyERC20PermitToken public paymentToken;
     MyNFT public nftContract;
 
     address public owner;
@@ -27,7 +27,7 @@ contract NFTMarketTest is Test, IERC20Errors {
 
     function setUp() public {
         owner = address(this);
-        paymentToken = new MyERC20Token("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
+        paymentToken = new MyERC20PermitToken("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
         // set owner to this contract
         nftContract = new MyNFT(owner);
         market = new NFTMarket(address(nftContract), address(paymentToken));
@@ -481,7 +481,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         bytes memory data = abi.encode("123");
 
         // set expect revert
-        vm.expectRevert(MyERC20Token.TokensReceivedFailed.selector);
+        vm.expectRevert(MyERC20PermitToken.TokensReceivedFailed.selector);
 
         // transfer token to nft-market contract and call buyNFT
         paymentToken.transferAndCall(address(market), price, data);
@@ -650,14 +650,14 @@ contract NFTMarketTest is Test, IERC20Errors {
 // test invariant
 contract NFTMarketInvariantTest is Test {
     NFTMarket public market;
-    MyERC20Token public paymentToken;
+    MyERC20PermitToken public paymentToken;
     MyNFT public nftContract;
     address public owner;
     address[] public users;
 
     function setUp() public {
         owner = address(this);
-        paymentToken = new MyERC20Token("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
+        paymentToken = new MyERC20PermitToken("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
         nftContract = new MyNFT(owner);
         market = new NFTMarket(address(nftContract), address(paymentToken));
 

@@ -49,15 +49,15 @@ Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 3.45s (10.23s CPU t
 Ran 1 test suite in 3.45s (3.45s CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)
 ```
 
-## Deploy MyERC20Token/MyNFT
+## Deploy MyERC20PermitToken/MyNFT
 ```
-forge script script/DeployMyERC20Token.s.sol:DeployMyERC20TokenScript --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
+forge script script/DeployMyERC20PermitToken.s.sol:DeployMyERC20PermitTokenScript --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
 forge script script/DeployMyNFT.s.sol:DeployMyNFT --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
 ```
 ## Deploy result
 ```
 https://sepolia.arbiscan.io/address/0x54f0bcb385f758e38ebb3e5085abab3db1cf3153
-MyERC20Token address: 0x54f0bcb385f758e38ebb3e5085abab3db1cf3153
+MyERC20PermitToken address: 0x54f0bcb385f758e38ebb3e5085abab3db1cf3153
 
 https://sepolia.arbiscan.io/address/0x0C9411984a111B26F2518e70D3731779103c9c35
 NFT address: 0x0C9411984a111B26F2518e70D3731779103c9c35

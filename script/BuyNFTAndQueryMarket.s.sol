@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/console2.sol";
 import "../src/NFTMarket.sol";
 import "../src/MyNFT.sol";
-import "../src/MyERC20Token.sol";
+import "../src/MyERC20PermitToken.sol";
 
 contract BuyNFTAndQueryMarketScript is Script {
     function run() external {
@@ -21,7 +21,7 @@ contract BuyNFTAndQueryMarketScript is Script {
 
         NFTMarket market = NFTMarket(marketAddress);
         MyNFT nft = MyNFT(nftAddress);
-        MyERC20Token paymentToken = MyERC20Token(tokenAddress);
+        MyERC20PermitToken paymentToken = MyERC20PermitToken(tokenAddress);
 
         // replace your nft tokenId
         uint256 tokenId = 0;

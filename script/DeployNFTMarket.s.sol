@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/console2.sol";
 import "../src/NFTMarket.sol";
 import "../src/MyNFT.sol";
-import "../src/MyERC20Token.sol";
+import "../src/MyERC20PermitToken.sol";
 
 contract DeployNFTMarket is Script {
     function run() external {

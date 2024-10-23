@@ -1,5 +1,5 @@
-MyERC20TokenTest:testTokensReceivedHook() (gas: 434657)
-MyERC20TokenTest:testTransfer() (gas: 45728)
+MyERC20PermitTokenTest:testTokensReceivedHook() (gas: 434657)
+MyERC20PermitTokenTest:testTransfer() (gas: 45728)
 MyNFTTest:testInitialState() (gas: 20189)
 MyNFTTest:testMaxSupply() (gas: 142206811)
 MyNFTTest:testOnlyOwnerCanSafeMint() (gas: 13979)

@@ -3,9 +3,9 @@ pragma solidity ^0.8.28;
 
 import "forge-std/Script.sol";
 import "forge-std/console2.sol";
-import "../src/MyERC20Token.sol";
+import "../src/MyERC20PermitToken.sol";
 
-contract DeployMyERC20TokenScript is Script {
+contract DeployMyERC20PermitTokenScript is Script {
     function setUp() public { }
 
     function run() public {
@@ -14,9 +14,9 @@ contract DeployMyERC20TokenScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // deploy MyERC20Token
-        MyERC20Token token = new MyERC20Token("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
-        console2.log("MyERC20Token deployed to:", address(token));
+        // deploy MyERC20PermitToken
+        MyERC20PermitToken token = new MyERC20PermitToken("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
+        console2.log("MyERC20PermitToken deployed to:", address(token));
 
         console2.log("Deployed by:", deployerAddress);
 
