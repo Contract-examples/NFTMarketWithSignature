@@ -13,8 +13,8 @@ contract MyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     error maxSupplyReached();
 
-    constructor(address initialOwner) ERC721("MyNFT", "MFT") Ownable(initialOwner) {
-        MaxSupply = 1000;
+    constructor(string memory name, string memory symbol, uint256 maxSupply) ERC721(name, symbol) Ownable(msg.sender) {
+        MaxSupply = maxSupply;
     }
 
     function safeMint(address to, string memory uri) public onlyOwner {

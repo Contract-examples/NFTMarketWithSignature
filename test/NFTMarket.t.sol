@@ -38,7 +38,7 @@ contract NFTMarketTest is Test, IERC20Errors {
         owner = address(this);
         paymentToken = new MyERC20PermitToken("MyNFTToken2612", "MTK2612", 1_000_000 * 10 ** 18);
         // set owner to this contract
-        nftContract = new MyNFT(owner);
+        nftContract = new MyNFT("MyNFT", "MFT", 1000);
         market = new NFTMarket(address(nftContract), address(paymentToken));
 
         // use a fixed private key to generate the address
@@ -792,7 +792,7 @@ contract NFTMarketInvariantTest is Test {
     function setUp() public {
         owner = address(this);
         paymentToken = new MyERC20PermitToken("MyNFTToken2612", "MTK2612", 1_000_000 * 10 ** 18);
-        nftContract = new MyNFT(owner);
+        nftContract = new MyNFT("MyNFT", "MFT", 1000);
         market = new NFTMarket(address(nftContract), address(paymentToken));
 
         // Create some users

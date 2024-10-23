@@ -14,7 +14,7 @@ contract MyNFTTest is Test {
         owner = address(this);
         user1 = address(0x1);
         user2 = address(0x2);
-        nft = new MyNFT(owner);
+        nft = new MyNFT("MyNFT", "MFT", 1000);
     }
 
     function testInitialState() public {

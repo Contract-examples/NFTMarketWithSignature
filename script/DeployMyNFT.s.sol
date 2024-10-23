@@ -13,7 +13,7 @@ contract DeployMyNFT is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        MyNFT nft = new MyNFT(deployerAddress);
+        MyNFT nft = new MyNFT("MyNFT", "MFT", 1000);
 
         vm.stopBroadcast();
 
