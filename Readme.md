@@ -130,8 +130,8 @@ forge script script/BuyNFTPermitAndQueryMarket.s.sol:BuyNFTPermitAndQueryMarketS
 
 Current NFT Market status:
   ----------------------------
-txhash: https://sepolia.arbiscan.io/tx/0x1b4f1d283970329d0a410b111a6c3114b55e44614e3c1e006588cc776fd812e8
-opensea: https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/0
+https://sepolia.arbiscan.io/tx/0x8b1c134045325a311883e490727140f27e46635f0f51614960ec34ec713c4f5d
+https://testnets.opensea.io/assets/arbitrum-sepolia/0x32ecc13478b2d03b212ae7b371f5f3c18490bc9d/1
 ```
 
 
