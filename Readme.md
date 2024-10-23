@@ -104,7 +104,7 @@ forge script script/QueryNFTMarket.s.sol:QueryNFTMarketScript --rpc-url arbitrum
 ```
 forge script script/BuyNFTPermitAndQueryMarket.s.sol:BuyNFTPermitAndQueryMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
 ```
-## result of "Buy NFT on NFT market"
+## result of "Buy NFT via whitelist on NFT market"
 ```
 == Logs ==
   NFT seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
