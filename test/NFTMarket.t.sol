@@ -730,6 +730,11 @@ contract NFTMarketTest is Test, IERC20Errors {
         (address listedSeller, uint256 listedPrice) = market.listings(tokenId);
         assertEq(listedSeller, address(0));
         assertEq(listedPrice, 0);
+
+        // query listing
+        (address listingSeller, uint256 listingPrice) = market.listings(tokenId);
+        console2.log("listingSeller: %d", listingSeller);
+        console2.log("listingPrice: %d", listingPrice);
     }
 
     function testPermitBuyNotWhitelisted() public {
