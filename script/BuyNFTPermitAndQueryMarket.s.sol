@@ -48,7 +48,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         nft = MyNFT(nftAddress);
         paymentToken = MyERC20PermitToken(tokenAddress);
 
-        tokenId = 0;
+        tokenId = 1;
     }
 
     function run() external {
