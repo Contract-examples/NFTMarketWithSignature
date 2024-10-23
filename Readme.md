@@ -75,6 +75,7 @@ forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broad
 ## Mint result
 ```
 https://testnets.opensea.io/assets/arbitrum-sepolia/0x32ecc13478b2d03b212ae7b371f5f3c18490bc9d/0
+https://testnets.opensea.io/assets/arbitrum-sepolia/0x32ecc13478b2d03b212ae7b371f5f3c18490bc9d/1
 ```
 
 ## List NFT on NFT market
