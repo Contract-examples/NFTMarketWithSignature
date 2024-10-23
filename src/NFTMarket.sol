@@ -3,11 +3,17 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "@solady/utils/SafeTransferLib.sol";
-import "./MyERC20PermitToken.sol";
 import "./IERC20Receiver.sol";
 
-contract NFTMarket is IERC20Receiver {
+contract NFTMarket is IERC20Receiver, Ownable {
+    using ECDSA for bytes32;
+    using MessageHashUtils for bytes32;
+
     // custom errors
     error NotTheOwner();
     error NFTNotApproved();
@@ -20,14 +26,17 @@ contract NFTMarket is IERC20Receiver {
     error InsufficientPayment();
     error NoTokenId();
     error TheSenderIsTheSeller();
-    error InvalidPrice();
     error InvalidSeller();
+    error NotSignedByWhitelistSigner();
+    error PermitNotSupported();
+    error InvalidWhitelistSigner();
 
     // custom events
     event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
     event NFTSold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
     event NFTUnlisted(uint256 indexed tokenId);
     event Refund(address indexed from, uint256 amount);
+    event WhitelistBuy(uint256 indexed tokenId, address indexed buyer, uint256 price);
 
     // custom structs
     struct Listing {
@@ -36,16 +45,61 @@ contract NFTMarket is IERC20Receiver {
     }
 
     // this is our payment token
-    MyERC20PermitToken public immutable paymentToken;
+    IERC20 public immutable paymentToken;
+    // this is our payment token permit
+    IERC20Permit public immutable paymentTokenPermit;
+    // indicate if the payment token supports permit(EIP-2612)
+    bool public immutable supportsPermit;
     // this is our NFT contract
     IERC721 public immutable nftContract;
+    // this is our whitelist signer
+    address public whitelistSigner;
 
     // this is our listing mapping [tokenId => Listing]
     mapping(uint256 => Listing) public listings;
 
-    constructor(address _nftContract, address _paymentToken) {
+    constructor(address _nftContract, address _paymentToken) Ownable(msg.sender) {
         nftContract = IERC721(_nftContract);
-        paymentToken = MyERC20PermitToken(_paymentToken);
+        paymentToken = IERC20(_paymentToken);
+
+        // check if the payment token supports permit
+        supportsPermit = _isPermitSupported(_paymentToken);
+        if (supportsPermit) {
+            paymentTokenPermit = IERC20Permit(_paymentToken);
+        }
+
+        // default whitelist signer is the owner
+        whitelistSigner = msg.sender;
+    }
+
+    // this is a function to set the whitelist signer
+    function setWhitelistSigner(address _whitelistSigner) external onlyOwner {
+        if (_whitelistSigner == address(0)) {
+            revert InvalidWhitelistSigner();
+        }
+        whitelistSigner = _whitelistSigner;
+    }
+
+    // this is a helper function to check if the recipient is a contract
+    function _isContract(address account) internal view returns (bool) {
+        // if the code size is greater than 0, then the account is a contract
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
+    }
+
+    // check if the token supports permit
+    function _isPermitSupported(address _token) internal view returns (bool) {
+        if (!_isContract(_token)) {
+            return false;
+        }
+        try IERC20Permit(_token).DOMAIN_SEPARATOR() returns (bytes32) {
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     // this is our function to list an NFT
@@ -174,5 +228,55 @@ contract NFTMarket is IERC20Receiver {
         nftContract.safeTransferFrom(listing.seller, buyer, tokenId);
         // delete the listing
         delete listings[tokenId];
+    }
+
+    // need to be whitelisted to buy
+    function permitBuy(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes memory whitelistSignature
+    )
+        external
+    {
+        // make sure the payment token supports permit
+        if (!supportsPermit) {
+            revert PermitNotSupported();
+        }
+
+        Listing memory listing = listings[tokenId];
+        // make sure the NFT is listed
+        if (listing.price == 0) {
+            revert NFTNotListed();
+        }
+        // make sure the buyer is not the seller
+        if (msg.sender == listing.seller) {
+            revert TheSenderIsTheSeller();
+        }
+
+        // verify the whitelist signature
+        bytes32 messageHash = keccak256(abi.encodePacked(msg.sender, tokenId));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        address signer = ethSignedMessageHash.recover(whitelistSignature);
+
+        // not signed by the whitelist signer
+        if (signer != whitelistSigner) {
+            revert NotSignedByWhitelistSigner();
+        }
+
+        // use the permit function of ERC2612
+        paymentTokenPermit.permit(msg.sender, address(this), price, deadline, v, r, s);
+
+        // transfer the payment token to the seller
+        SafeTransferLib.safeTransferFrom(address(paymentToken), msg.sender, listing.seller, price);
+
+        // transfer NFT from seller to buyer
+        _safeTransferFromSellerToBuyer(tokenId, msg.sender);
+
+        // emit the WhitelistBuy event
+        emit WhitelistBuy(tokenId, msg.sender, price);
     }
 }
