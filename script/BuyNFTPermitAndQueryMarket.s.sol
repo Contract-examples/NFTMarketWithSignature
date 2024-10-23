@@ -50,6 +50,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
 
         tokenId = 1;
 
+        // start broadcast
         vm.startBroadcast(whitelistBuyerPrivateKey);
 
         (address seller, uint256 price) = market.listings(tokenId);
@@ -97,10 +98,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         console2.log("r2: %s", Strings.toHexString(uint256(r2)));
         console2.log("s2: %s", Strings.toHexString(uint256(s2)));
 
-        vm.stopBroadcast();
-
         // execute permitBuy
-        vm.prank(whitelistBuyer);
         try market.permitBuy(tokenId, price, deadline, v2, r2, s2, whitelistSignature) {
             console2.log("Transaction successful");
         } catch Error(string memory reason) {
@@ -108,6 +106,9 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         } catch {
             console2.log("Transaction failed with no reason string");
         }
+
+        // stop broadcast
+        vm.stopBroadcast();
 
         console2.log("NFT purchased:");
         console2.log("whitelistBuyer:", whitelistBuyer);
