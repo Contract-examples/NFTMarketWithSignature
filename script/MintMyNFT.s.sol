@@ -11,10 +11,12 @@ contract MintMyNFT is Script {
         address deployerAddress = vm.addr(deployerPrivateKey);
 
         // replace with your nft contract address
-        address nftAddress = 0x0C9411984a111B26F2518e70D3731779103c9c35;
+        address nftAddress = 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d;
         MyNFT nft = MyNFT(nftAddress);
 
         // replace with your metadata URI
+        // https://ipfs.io/ipfs/QmNv6Br4XyKsPLTexFYSv9dvGkRnxqqkJgxcLTW9rb94e6 (gmh)
+        // https://ipfs.io/ipfs/QmZFCuv8NKTAhaNTXx9X6iXnUkgdpbNJAhBHvEUZHzJnmf (newworld)
         string memory metadataURI = "https://ipfs.io/ipfs/QmZFCuv8NKTAhaNTXx9X6iXnUkgdpbNJAhBHvEUZHzJnmf";
 
         vm.startBroadcast(deployerPrivateKey);
