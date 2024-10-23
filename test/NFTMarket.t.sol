@@ -67,9 +67,9 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.prank(owner);
 
         // let owner mint nft to seller
-        nftContract.safeMint(seller, "ipfs://test-url-001");
-        nftContract.safeMint(seller2, "ipfs://test-url-002");
-        nftContract.safeMint(seller3, "ipfs://test-url-003");
+        nftContract.safeMint(seller, "ipfs://gmh-001");
+        nftContract.safeMint(seller2, "ipfs://gmh-002");
+        nftContract.safeMint(seller3, "ipfs://gmh-003");
 
         // get actual tokenId
         // seller
