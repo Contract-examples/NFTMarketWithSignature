@@ -34,6 +34,9 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         whitelistBuyer = vm.addr(whitelistBuyerPrivateKey);
         whitelistSigner = vm.addr(whitelistSignerPrivateKey);
 
+        console2.log("whitelistBuyer: %s", Strings.toHexString((whitelistBuyer)));
+        console2.log("whitelistSigner: %s", Strings.toHexString((whitelistSigner)));
+
         // replace your nft market contract address
         marketAddress = 0x98A566801FF66d156971ADa3f6D729eFBABD67Ca;
         // replace your nft contract address
@@ -49,7 +52,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
     }
 
     function run() external {
-        setUp();
+        //setUp();
 
         vm.startBroadcast(whitelistBuyerPrivateKey);
 
@@ -102,7 +105,13 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
 
         // execute permitBuy
         vm.prank(whitelistBuyer);
-        market.permitBuy(tokenId, price, deadline, v2, r2, s2, whitelistSignature);
+        try market.permitBuy(tokenId, price, deadline, v2, r2, s2, whitelistSignature) {
+            console2.log("Transaction successful");
+        } catch Error(string memory reason) {
+            console2.log("Transaction failed. Reason:", reason);
+        } catch {
+            console2.log("Transaction failed with no reason string");
+        }
 
         console2.log("NFT purchased:");
         console2.log("whitelistBuyer:", whitelistBuyer);
