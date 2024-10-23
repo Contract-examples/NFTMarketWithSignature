@@ -54,3 +54,12 @@ MyERC20Token address: 0x6343c4a548F5f75b47Cdd1A52a52eF89bC29A5eB
 https://sepolia.arbiscan.io/address/0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
 NFT address: 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
 ```
+
+## Mint NFT
+```
+forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## Mint result
+```
+https://testnets.opensea.io/assets/arbitrum-sepolia/0x32ecc13478b2d03b212ae7b371f5f3c18490bc9d/0
+```
