@@ -17,7 +17,7 @@ contract MintMyNFT is Script {
         // replace with your metadata URI
         // https://ipfs.io/ipfs/QmNv6Br4XyKsPLTexFYSv9dvGkRnxqqkJgxcLTW9rb94e6 (gmh)
         // https://ipfs.io/ipfs/QmZFCuv8NKTAhaNTXx9X6iXnUkgdpbNJAhBHvEUZHzJnmf (newworld)
-        string memory metadataURI = "https://ipfs.io/ipfs/QmZFCuv8NKTAhaNTXx9X6iXnUkgdpbNJAhBHvEUZHzJnmf";
+        string memory metadataURI = "https://ipfs.io/ipfs/QmNv6Br4XyKsPLTexFYSv9dvGkRnxqqkJgxcLTW9rb94e6";
 
         vm.startBroadcast(deployerPrivateKey);
 
