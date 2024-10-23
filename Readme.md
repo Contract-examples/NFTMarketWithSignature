@@ -107,22 +107,25 @@ forge script script/BuyNFTPermitAndQueryMarket.s.sol:BuyNFTPermitAndQueryMarketS
 ## result of "Buy NFT via whitelist on NFT market"
 ```
 == Logs ==
+  whitelistBuyer: 0xe091701ac9816d38241887147b41ae312d26e1c3
+  whitelistSigner: 0x059dc4eee9328a9f163a7e813b2f5b4a52add4df
   NFT seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
   NFT price: 100000000000000000000
-  messageHash: 0xb1b91a7e381af88ceaa01975da1ce2ee2c607b1f1d0a8ef4e656d1757d992134
-  ethSignedMessageHash: 0xc4bb37ae725686c50a40f856ec41f02dd9609eda1104634ca5692c8d098c04e0
+  messageHash: 0xfb0a341a7ebde5cde457ec03f6699e69cd1244a0bbccef4f3aefad756c43510f
+  ethSignedMessageHash: 0x0e93b1d93932ec737f4442a29f0a4c539254444bc357d606a20fe35ff3a33a89
   v1: 0x1b
-  r1: 0x04d33c657255139993f93c79e1c667f03def67bd8aebac82e6f63bfc8b7d5d13
-  s1: 0x6a3e3fb5274d1bd8dc18fb7a2f2c3a7e6054c6382cd14d2acb9f18072e5c9cd5
+  r1: 0xc8fe53fcbb20d0699f21c7b14edea0aa198e89c13b159e73f71fb9d617b23035
+  s1: 0x0b58b7ed813c8d3e55626f5ffb39ad1e0b1939ec302f32c748dc048ae481f44a
   whitelistSignature:
-  0x04d33c657255139993f93c79e1c667f03def67bd8aebac82e6f63bfc8b7d5d136a3e3fb5274d1bd8dc18fb7a2f2c3a7e6054c6382cd14d2acb9f18072e5c9cd51b     
-  permitHash: 0x43508f2e0f60ba469068601c9f387c5643a7b1b124c872f99cd605b34f5e49b6
+  0xc8fe53fcbb20d0699f21c7b14edea0aa198e89c13b159e73f71fb9d617b230350b58b7ed813c8d3e55626f5ffb39ad1e0b1939ec302f32c748dc048ae481f44a1b     
+  permitHash: 0x892d53b7ffb467b9944597ae9a4f498bc321b80b3372bf16e94a332870a44eac
   v2: 0x1b
-  r2: 0xb3598245c7ff9a79d22ef4374a096ea5ea82a6b24df7db0ee93dab82763537c9
-  s2: 0x5796dddc2e05cca0785fdf785bbf2799c745a251038763864fa4d6b367e82a5f
+  r2: 0xe5c8480dd74079d25e1747eaec71a50150dc7a7775f3a43f98cf5553df2f612f
+  s2: 0x12143427c2f1532410396ba3cd2d4ca87a91bba39b8077a4b03504f54a8cbb00
+  Transaction successful
   NFT purchased:
   whitelistBuyer: 0xe091701aC9816D38241887147B41AE312d26e1C3
-  Token ID: 0
+  Token ID: 1
   Price paid: 100000000000000000000
 
 Current NFT Market status:
