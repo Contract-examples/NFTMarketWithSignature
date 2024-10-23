@@ -55,6 +55,17 @@ https://sepolia.arbiscan.io/address/0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
 NFT address: 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d
 ```
 
+## Deploy NFTMarket
+```
+forge script script/DeployNFTMarket.s.sol:DeployNFTMarket --rpc-url arbitrum_sepolia --broadcast --verify -vvvv
+```
+
+## Deploy result
+```
+https://sepolia.arbiscan.io/address/0x98A566801FF66d156971ADa3f6D729eFBABD67Ca
+NFTMarket addresas: 0x98A566801FF66d156971ADa3f6D729eFBABD67Ca
+```
+
 ## Mint NFT
 ```
 forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broadcast -vvvv
@@ -63,3 +74,13 @@ forge script script/MintMyNFT.s.sol:MintMyNFT --rpc-url arbitrum_sepolia --broad
 ```
 https://testnets.opensea.io/assets/arbitrum-sepolia/0x32ecc13478b2d03b212ae7b371f5f3c18490bc9d/0
 ```
+
+## List NFT on NFT market
+```
+forge script script/ListNFTOnMarket.s.sol:ListNFTOnMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "List NFT on NFT market"
+```
+txhash: https://sepolia.arbiscan.io/tx/0x42a323eb877e31f69e79caa80159bb858605efe1d592cb78e10e713d4656e444
+```
+
