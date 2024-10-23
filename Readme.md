@@ -100,3 +100,35 @@ forge script script/QueryNFTMarket.s.sol:QueryNFTMarketScript --rpc-url arbitrum
   ----------------------------
 ```
 
+## Buy NFT via whitelist on NFT market
+```
+forge script script/BuyNFTPermitAndQueryMarket.s.sol:BuyNFTPermitAndQueryMarketScript --rpc-url arbitrum_sepolia --broadcast -vvvv
+```
+## result of "Buy NFT via whitelist on NFT market"
+```
+== Logs ==
+  NFT seller: 0x059dC4EEe9328A9f163a7e813B2f5B4A52ADD4dF
+  NFT price: 100000000000000000000
+  messageHash: 0xb1b91a7e381af88ceaa01975da1ce2ee2c607b1f1d0a8ef4e656d1757d992134
+  ethSignedMessageHash: 0xc4bb37ae725686c50a40f856ec41f02dd9609eda1104634ca5692c8d098c04e0
+  v1: 0x1b
+  r1: 0x04d33c657255139993f93c79e1c667f03def67bd8aebac82e6f63bfc8b7d5d13
+  s1: 0x6a3e3fb5274d1bd8dc18fb7a2f2c3a7e6054c6382cd14d2acb9f18072e5c9cd5
+  whitelistSignature:
+  0x04d33c657255139993f93c79e1c667f03def67bd8aebac82e6f63bfc8b7d5d136a3e3fb5274d1bd8dc18fb7a2f2c3a7e6054c6382cd14d2acb9f18072e5c9cd51b     
+  permitHash: 0x43508f2e0f60ba469068601c9f387c5643a7b1b124c872f99cd605b34f5e49b6
+  v2: 0x1b
+  r2: 0xb3598245c7ff9a79d22ef4374a096ea5ea82a6b24df7db0ee93dab82763537c9
+  s2: 0x5796dddc2e05cca0785fdf785bbf2799c745a251038763864fa4d6b367e82a5f
+  NFT purchased:
+  whitelistBuyer: 0xe091701aC9816D38241887147B41AE312d26e1C3
+  Token ID: 0
+  Price paid: 100000000000000000000
+
+Current NFT Market status:
+  ----------------------------
+txhash: https://sepolia.arbiscan.io/tx/0x1b4f1d283970329d0a410b111a6c3114b55e44614e3c1e006588cc776fd812e8
+opensea: https://testnets.opensea.io/assets/arbitrum-sepolia/0x0c9411984a111b26f2518e70d3731779103c9c35/0
+```
+
+
