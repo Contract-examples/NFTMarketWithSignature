@@ -15,7 +15,7 @@ contract DeployMyERC20PermitTokenScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // deploy MyERC20PermitToken
-        MyERC20PermitToken token = new MyERC20PermitToken("MyNFTToken", "MTK", 1_000_000 * 10 ** 18);
+        MyERC20PermitToken token = new MyERC20PermitToken("MyNFTToken2612", "MTK2612", 1_000_000 * 10 ** 18);
         console2.log("MyERC20PermitToken deployed to:", address(token));
 
         console2.log("Deployed by:", deployerAddress);
