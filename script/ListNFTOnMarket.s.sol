@@ -20,8 +20,8 @@ contract ListNFTOnMarketScript is Script {
         address nftAddress = 0x32eCC13478b2d03b212AE7b371F5f3C18490Bc9d;
         MyNFT nft = MyNFT(nftAddress);
 
-        // sell tokenId 1
-        uint256 tokenId = 1;
+        // replace your nft tokenId
+        uint256 tokenId = 0;
 
         // price is 100 $MTK
         uint256 price = 100 * 10 ** 18;

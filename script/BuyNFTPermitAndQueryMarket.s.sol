@@ -48,6 +48,7 @@ contract BuyNFTPermitAndQueryMarketScript is Script {
         nft = MyNFT(nftAddress);
         paymentToken = MyERC20PermitToken(tokenAddress);
 
+        // replace your nft tokenId
         tokenId = 1;
 
         // start broadcast
