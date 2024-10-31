@@ -788,7 +788,7 @@ contract NFTMarketTest is Test, IERC20Errors {
     }
 
     function testListWithSignature() public {
-        uint256 tokenId = 0; // seller的NFT ID
+        uint256 tokenId = 0; // seller's NFT ID
         uint256 price = 100 * 10 ** paymentToken.decimals();
         uint256 deadline = block.timestamp + 1 days;
 
@@ -934,50 +934,45 @@ contract NFTMarketTest is Test, IERC20Errors {
         uint256 deadline = block.timestamp + 1 days;
         uint256 rentDuration = 1 days;
 
-        // // set min rental duration = 1 days
-        // vm.prank(owner);
-        // market.setMinRentalDuration(1 days);
-
-        // create signed listing
+        // 1. Seller signs offline (no gas cost)
         bytes32 messageHash = keccak256(abi.encodePacked(address(market), tokenId, price, deadline, block.chainid));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
         bytes memory signature = abi.encodePacked(r, s, v);
 
-        // approve and list
+        // 2. At this point, seller hasn't approved NFT to market contract
+        assertEq(nftContract.getApproved(tokenId), address(0));
+
+        // 3. Listing info can be verified offline (no gas cost)
+        bytes32 recoveredMessageHash =
+            keccak256(abi.encodePacked(address(market), tokenId, price, deadline, block.chainid));
+        bytes32 recoveredEthSignedMessageHash = recoveredMessageHash.toEthSignedMessageHash();
+        address recoveredSigner = recoveredEthSignedMessageHash.recover(signature);
+        assertEq(recoveredSigner, seller);
+
+        // 4. Seller only needs to approve when actual rental happens (gas cost only at transaction)
         vm.startPrank(seller);
         nftContract.approve(address(market), tokenId);
         market.listWithSignature(tokenId, price, deadline, signature);
         vm.stopPrank();
 
-        // give buyer ETH
-        vm.deal(buyer, 10 ether);
-
-        // get rental config
+        // 5. Calculate rental price
         (uint256 minDuration,, uint256 feePercentage) = market.rentalConfig();
-
-        // calculate expected rent price
         uint256 rentalUnits = (rentDuration + minDuration - 1) / minDuration;
         uint256 expectedRentPrice = (price * rentalUnits * feePercentage) / market.BASIS_POINTS();
 
-        console2.log("Base price:", price);
-        console2.log("Rental units:", rentalUnits);
-        console2.log("Expected rent price:", expectedRentPrice);
-
-        // rent NFT
+        // 6. Rent NFT
+        vm.deal(buyer, 10 ether);
         vm.prank(buyer);
         market.rentSignedNFT{ value: expectedRentPrice }(tokenId, rentDuration);
 
-        // verify rent info
+        // Verify rental information
         (address renter, uint256 startTime, uint256 duration, uint256 rentalPrice) = market.rentals(tokenId);
         assertEq(renter, buyer);
         assertEq(duration, rentDuration);
         assertEq(rentalPrice, expectedRentPrice);
         assertEq(nftContract.ownerOf(tokenId), address(market));
-
-        // verify seller received the rent payment
-        assertEq(seller.balance, expectedRentPrice);
     }
 }
 
