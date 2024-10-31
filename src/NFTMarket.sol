@@ -403,10 +403,56 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         emit NFTListedWithSignature(tokenId, signer, price, deadline, signature, true);
     }
 
-    // Cancel a signed listing
-    function cancelSignedListing(uint256 tokenId, bytes memory signature) external {
+    // a internal function to handle the common validation logic
+    function _validateCancellation(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        bytes memory signature
+    )
+        internal
+        view
+        returns (bool)
+    {
         // Verify the caller is the NFT owner
-        if (msg.sender != nftContract.ownerOf(tokenId)) revert NotTheOwner();
+        if (msg.sender != nftContract.ownerOf(tokenId)) {
+            return false;
+        }
+
+        // Verify signature validity
+        bytes32 messageHash = createListingMessage(
+            tokenId,
+            price,
+            deadline,
+            tokenNonces[tokenId] - 1 // use the current nonce - 1
+        );
+
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        address signer = ethSignedMessageHash.recover(signature);
+
+        return signer == msg.sender;
+    }
+
+    // check if the signed listing can be cancelled
+    function canCancelSignedListing(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        bytes memory signature
+    )
+        external
+        view
+        returns (bool)
+    {
+        return _validateCancellation(tokenId, price, deadline, signature);
+    }
+
+    // cancel signed listing
+    function cancelSignedListing(uint256 tokenId, uint256 price, uint256 deadline, bytes memory signature) external {
+        // Use the common validation logic
+        if (!_validateCancellation(tokenId, price, deadline, signature)) {
+            revert InvalidSignature();
+        }
 
         // Emit the cancellation event
         emit SignedListingCancelled(tokenId, msg.sender, signature);
@@ -477,7 +523,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     }
 
     // retrieve a rented NFT
-    function retrieveRentedSignedNFT(uint256 tokenId) external {
+    function retrieveRentedNFT(uint256 tokenId) external {
         RentInfo memory rental = rentals[tokenId];
         if (rental.renter == address(0)) revert RentNotAvailable();
 
