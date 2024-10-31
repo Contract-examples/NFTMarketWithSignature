@@ -8,10 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@solady/utils/SafeTransferLib.sol";
 import "./IERC20Receiver.sol";
 
-contract NFTMarket is IERC20Receiver, Ownable {
+contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
@@ -38,6 +39,7 @@ contract NFTMarket is IERC20Receiver, Ownable {
     error RentNotExpired();
     error NFTAlreadyListed();
     error RentDurationMustBeGreaterThanZero();
+    error RentDurationTooLong();
 
     // custom events
     event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
@@ -85,6 +87,9 @@ contract NFTMarket is IERC20Receiver, Ownable {
     mapping(uint256 => SignedListing) public signedListings;
     mapping(uint256 => RentInfo) public rentals;
     mapping(bytes32 => bool) public usedSignatures;
+
+    // rental unit
+    uint256 private constant RENTAL_UNIT = 1 hours;
 
     constructor(address _nftContract, address _paymentToken) Ownable(msg.sender) {
         nftContract = IERC721(_nftContract);
@@ -336,23 +341,30 @@ contract NFTMarket is IERC20Receiver, Ownable {
         emit NFTListedWithSignature(tokenId, signer, price, deadline);
     }
 
-    // rent an NFT
-    function rentNFT(uint256 tokenId, uint256 duration) external payable {
-        Listing memory listing = listings[tokenId];
-        if (listing.price == 0) revert NFTNotListed();
+    // rent an NFT from signed listings
+    function rentSignedNFT(uint256 tokenId, uint256 duration) external payable {
+        SignedListing memory signedListing = signedListings[tokenId];
+        if (!signedListing.isValid) revert NFTNotListed();
+        if (signedListing.deadline < block.timestamp) revert SignatureExpired();
+        if (signedListing.price == 0) revert PriceMustBeGreaterThanZero();
         if (duration == 0) revert RentDurationMustBeGreaterThanZero();
+        // 1 year is the maximum rent duration
+        if (duration > 365 days) revert RentDurationTooLong();
 
-        // the NFT is already rented
         if (rentals[tokenId].renter != address(0)) revert NFTAlreadyRented();
 
-        uint256 rentPrice = listing.price * duration;
+        // get the rental units
+        uint256 rentalUnits = (duration + RENTAL_UNIT - 1) / RENTAL_UNIT;
+        // 1% of the price
+        uint256 rentPrice = (signedListing.price * rentalUnits) / 100;
+
         if (msg.value < rentPrice) revert InsufficientPayment();
 
         // transfer the rent price to the seller
-        (bool success,) = listing.seller.call{ value: rentPrice }("");
+        (bool success,) = signedListing.seller.call{ value: rentPrice }("");
         if (!success) revert TokenTransferFailed();
 
-        // if the buyer paid more than the rent price, refund the extra
+        // refund excess payment
         if (msg.value > rentPrice) {
             (bool refundSuccess,) = msg.sender.call{ value: msg.value - rentPrice }("");
             if (!refundSuccess) revert TokenTransferFailed();
@@ -363,32 +375,32 @@ contract NFTMarket is IERC20Receiver, Ownable {
             RentInfo({ renter: msg.sender, startTime: block.timestamp, duration: duration, price: rentPrice });
 
         // transfer the NFT to the market contract
-        nftContract.safeTransferFrom(listing.seller, address(this), tokenId);
+        nftContract.safeTransferFrom(signedListing.seller, address(this), tokenId);
 
         // emit the NFTRented event
         emit NFTRented(tokenId, msg.sender, duration, rentPrice);
     }
 
-    // retrieve a rented NFT(seller want to retrieve the rented NFT)
-    function retrieveRentedNFT(uint256 tokenId) external {
+    // retrieve a rented NFT (seller want to retrieve the rented NFT)
+    function retrieveRentedSignedNFT(uint256 tokenId) external {
         RentInfo memory rental = rentals[tokenId];
         if (rental.renter == address(0)) revert RentNotAvailable();
 
         // check if the rent is expired
         if (block.timestamp < rental.startTime + rental.duration) revert RentNotExpired();
 
-        // check if the sender is the seller
-        address seller = listings[tokenId].seller;
-        if (msg.sender != seller) revert NotTheOwner();
+        // check if the sender is the seller from signed listings
+        SignedListing memory signedListing = signedListings[tokenId];
+        if (msg.sender != signedListing.seller) revert NotTheOwner();
 
         // return the NFT to the seller
-        nftContract.safeTransferFrom(address(this), seller, tokenId);
+        nftContract.safeTransferFrom(address(this), signedListing.seller, tokenId);
 
         // clear the rental info
         delete rentals[tokenId];
 
         // emit the NFTRetrieved event
-        emit NFTRetrieved(tokenId, seller);
+        emit NFTRetrieved(tokenId, signedListing.seller);
     }
 
     // get the active listings
@@ -440,5 +452,19 @@ contract NFTMarket is IERC20Receiver, Ownable {
             mstore(tokenIds, activeCount)
             mstore(activeListings, activeCount)
         }
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    )
+        external
+        override
+        returns (bytes4)
+    {
+        // indicate that the NFTMarket contract has received the NFT
+        return IERC721Receiver.onERC721Received.selector;
     }
 }
