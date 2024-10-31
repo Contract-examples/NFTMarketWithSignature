@@ -932,7 +932,11 @@ contract NFTMarketTest is Test, IERC20Errors {
         uint256 tokenId = 0;
         uint256 price = 0.0001 ether;
         uint256 deadline = block.timestamp + 1 days;
-        uint256 rentDuration = 1 hours;
+        uint256 rentDuration = 1 days;
+
+        // // set min rental duration = 1 days
+        // vm.prank(owner);
+        // market.setMinRentalDuration(1 days);
 
         // create signed listing
         bytes32 messageHash = keccak256(abi.encodePacked(address(market), tokenId, price, deadline, block.chainid));

@@ -38,7 +38,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     error RentNotAvailable();
     error RentNotExpired();
     error NFTAlreadyListed();
-    error RentDurationMustBeGreaterThanZero();
+    error RentDurationTooShort();
     error RentDurationTooLong();
     error NFTNotRentedYet();
     error NotOriginalOwner();
@@ -407,13 +407,19 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     // rent an NFT from signed listings
     function rentSignedNFT(uint256 tokenId, uint256 duration) external payable {
         SignedListing memory signedListing = signedListings[tokenId];
+
+        // check if the NFT is listed
         if (!signedListing.isValid) revert NFTNotListed();
+        // check if the signature is expired
         if (signedListing.deadline < block.timestamp) revert SignatureExpired();
+        // check if the price is greater than zero
         if (signedListing.price == 0) revert PriceMustBeGreaterThanZero();
 
-        if (duration < rentalConfig.minDuration) revert RentDurationMustBeGreaterThanZero();
+        // check time
+        if (duration < rentalConfig.minDuration) revert RentDurationTooShort();
         if (duration > rentalConfig.maxDuration) revert RentDurationTooLong();
 
+        // check if the NFT is already rented
         if (rentals[tokenId].renter != address(0)) revert NFTAlreadyRented();
 
         // calculate the rental units
