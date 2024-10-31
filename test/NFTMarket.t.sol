@@ -17,6 +17,8 @@ contract NFTMarketTest is Test, IERC20Errors {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
+    uint256 private constant RENTAL_UNIT = 1 hours;
+
     NFTMarket public market;
     MyERC20PermitToken public paymentToken;
     MyNFT public nftContract;
@@ -889,7 +891,7 @@ contract NFTMarketTest is Test, IERC20Errors {
 
     function testListWithSignatureZeroPrice() public {
         uint256 tokenId = 0;
-        uint256 price = 0; // 设置价格为0
+        uint256 price = 0;
         uint256 deadline = block.timestamp + 1 days;
 
         bytes32 messageHash = keccak256(abi.encodePacked(address(market), tokenId, price, deadline, block.chainid));
@@ -924,6 +926,48 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.expectRevert(NFTMarket.NFTAlreadyListed.selector);
         vm.prank(seller);
         market.listWithSignature(tokenId, price, deadline, signature);
+    }
+
+    function testRentSignedNFT() public {
+        uint256 tokenId = 0;
+        uint256 price = 0.0001 ether;
+        uint256 deadline = block.timestamp + 1 days;
+        uint256 rentDuration = 1 hours;
+
+        // create signed listing
+        bytes32 messageHash = keccak256(abi.encodePacked(address(market), tokenId, price, deadline, block.chainid));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // approve and list
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.listWithSignature(tokenId, price, deadline, signature);
+        vm.stopPrank();
+
+        // give buyer ETH
+        vm.deal(buyer, 10 ether);
+
+        // calculate expected rent price
+        uint256 rentalUnits = (rentDuration + RENTAL_UNIT - 1) / RENTAL_UNIT;
+        uint256 expectedRentPrice = (price * rentalUnits) / 100;
+
+        console2.log("Base price:", price);
+        console2.log("Rental units:", rentalUnits);
+        console2.log("Expected rent price:", expectedRentPrice);
+
+        // rent NFT
+        vm.prank(buyer);
+        market.rentSignedNFT{ value: expectedRentPrice }(tokenId, rentDuration);
+
+        // verify rent info
+        (address renter, uint256 startTime, uint256 duration, uint256 rentalPrice) = market.rentals(tokenId);
+        assertEq(renter, buyer);
+        assertEq(duration, rentDuration);
+        assertEq(rentalPrice, expectedRentPrice);
+        assertEq(nftContract.ownerOf(tokenId), address(market));
     }
 }
 
