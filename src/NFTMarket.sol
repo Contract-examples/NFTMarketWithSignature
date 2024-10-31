@@ -416,7 +416,9 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
 
         if (rentals[tokenId].renter != address(0)) revert NFTAlreadyRented();
 
+        // calculate the rental units
         uint256 rentalUnits = (duration + rentalConfig.minDuration - 1) / rentalConfig.minDuration;
+        // calculate the rent price
         uint256 rentPrice = (signedListing.price * rentalUnits * rentalConfig.feePercentage) / BASIS_POINTS;
 
         if (msg.value < rentPrice) revert InsufficientPayment();
