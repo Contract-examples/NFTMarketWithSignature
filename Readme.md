@@ -3,7 +3,7 @@
 
 ## Test
 ```
-forge test --match-test=testPermitBuy -vv
+forge test --match-test=testRentSignedNFT -vv
 ```
 
 ## Test result
