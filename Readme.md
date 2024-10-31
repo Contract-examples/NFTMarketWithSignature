@@ -3,8 +3,8 @@
 
 ## Test
 ```
+forge test --match-test=testListWithSignature -vv
 forge test --match-test=testRentSignedNFT -vv
-forge test --match-test=testRentSignedNFTWithExpiredDeadline -vv
 ```
 
 
