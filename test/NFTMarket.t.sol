@@ -875,6 +875,145 @@ contract NFTMarketTest is Test, IERC20Errors {
         vm.expectRevert(NFTMarket.InvalidSignature.selector);
         market.cancelSignedListing(tokenId, price, deadline, signature);
     }
+
+    function testRentSignedNFT() public {
+        uint256 tokenId = 0;
+        uint256 price = 0.0001 ether;
+        uint256 deadline = block.timestamp + 1 days;
+        uint256 duration = 1 days;
+
+        // 1. Create signature for listing
+        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, market.tokenNonces(tokenId));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // 2. Approve NFT and list with signature
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.listWithSignature(tokenId, price, deadline, signature);
+        vm.stopPrank();
+
+        // 3. Calculate expected rent price
+        (uint256 minDuration,, uint256 feePercentage) = market.rentalConfig();
+        uint256 rentalUnits = (duration + minDuration - 1) / minDuration;
+        uint256 expectedRentPrice = (price * rentalUnits * feePercentage) / market.BASIS_POINTS();
+
+        // 4. Give buyer some ETH
+        vm.deal(buyer, 1 ether);
+
+        // 5. Rent NFT
+        vm.prank(buyer);
+        market.rentSignedNFT{ value: expectedRentPrice }(tokenId, duration, price, deadline, signature);
+
+        // 6. Verify rental info
+        (address renter, uint256 startTime, uint256 rentalDuration, uint256 rentalPrice) = market.rentals(tokenId);
+        assertEq(renter, buyer);
+        assertEq(rentalDuration, duration);
+        assertEq(rentalPrice, expectedRentPrice);
+        assertEq(nftContract.ownerOf(tokenId), address(market));
+        assertEq(seller.balance, expectedRentPrice);
+    }
+
+    function testRentSignedNFTWithInvalidSignature() public {
+        uint256 tokenId = 0;
+        uint256 price = 0.0001 ether;
+        uint256 deadline = block.timestamp + 1 days;
+        uint256 duration = 1 days;
+
+        // 1. Create valid signature for listing
+        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, market.tokenNonces(tokenId));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+        bytes memory validSignature = abi.encodePacked(r, s, v);
+
+        // 2. List NFT with valid signature
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.listWithSignature(tokenId, price, deadline, validSignature);
+        vm.stopPrank();
+
+        // 3. Create invalid signature
+        uint256 invalidPrivateKey = uint256(keccak256(abi.encodePacked("invalid")));
+        (v, r, s) = vm.sign(invalidPrivateKey, ethSignedMessageHash);
+        bytes memory invalidSignature = abi.encodePacked(r, s, v);
+
+        // 4. Try to rent with invalid signature
+        vm.deal(buyer, 1 ether);
+        vm.prank(buyer);
+        vm.expectRevert(NFTMarket.InvalidSignature.selector);
+        market.rentSignedNFT{ value: price }(tokenId, duration, price, deadline, invalidSignature);
+    }
+
+    function testRentSignedNFTWithExpiredDeadline() public {
+        uint256 tokenId = 0;
+        uint256 price = 0.0001 ether;
+        uint256 duration = 1 days;
+
+        // First create a valid listing with non-expired deadline
+        uint256 validDeadline = block.timestamp + 1 days;
+
+        // Create signature with valid deadline
+        bytes32 messageHash = market.createListingMessage(tokenId, price, validDeadline, market.tokenNonces(tokenId));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // List NFT with valid deadline
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.listWithSignature(tokenId, price, validDeadline, signature);
+        vm.stopPrank();
+
+        // Warp time to make deadline expire
+        vm.warp(validDeadline + 1);
+
+        // Try to rent with expired deadline
+        vm.deal(buyer, 1 ether);
+        vm.prank(buyer);
+        vm.expectRevert(NFTMarket.SignatureExpired.selector);
+        market.rentSignedNFT{ value: price }(
+            tokenId,
+            duration,
+            price,
+            validDeadline, // now expired
+            signature
+        );
+    }
+
+    function testRentSignedNFTWithInsufficientPayment() public {
+        uint256 tokenId = 0;
+        uint256 price = 0.0001 ether;
+        uint256 deadline = block.timestamp + 1 days;
+        uint256 duration = 1 days;
+
+        // Create signature
+        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, market.tokenNonces(tokenId));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        // List NFT
+        vm.startPrank(seller);
+        nftContract.approve(address(market), tokenId);
+        market.listWithSignature(tokenId, price, deadline, signature);
+        vm.stopPrank();
+
+        // Calculate expected rent price
+        (uint256 minDuration,, uint256 feePercentage) = market.rentalConfig();
+        uint256 rentalUnits = (duration + minDuration - 1) / minDuration;
+        uint256 expectedRentPrice = (price * rentalUnits * feePercentage) / market.BASIS_POINTS();
+
+        // Try to rent with insufficient payment
+        vm.deal(buyer, expectedRentPrice / 2); // insufficient amount
+        vm.prank(buyer);
+        vm.expectRevert(NFTMarket.InsufficientPayment.selector);
+        market.rentSignedNFT{ value: expectedRentPrice / 2 }(tokenId, duration, price, deadline, signature);
+    }
 }
 
 // test invariant
