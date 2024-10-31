@@ -919,7 +919,7 @@ contract NFTMarketTest is Test, IERC20Errors {
 
         // Try to cancel from non-owner
         vm.prank(buyer);
-        vm.expectRevert(NFTMarket.NotTheOwner.selector);
+        vm.expectRevert(NFTMarket.InvalidSignature.selector);
         market.cancelSignedListing(tokenId, price, deadline, signature);
     }
 }
