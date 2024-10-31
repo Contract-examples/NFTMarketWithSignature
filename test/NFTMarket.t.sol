@@ -950,9 +950,12 @@ contract NFTMarketTest is Test, IERC20Errors {
         // give buyer ETH
         vm.deal(buyer, 10 ether);
 
+        // get rental config
+        (uint256 minDuration,, uint256 feePercentage) = market.rentalConfig();
+
         // calculate expected rent price
-        uint256 rentalUnits = (rentDuration + RENTAL_UNIT - 1) / RENTAL_UNIT;
-        uint256 expectedRentPrice = (price * rentalUnits) / 100;
+        uint256 rentalUnits = (rentDuration + minDuration - 1) / minDuration;
+        uint256 expectedRentPrice = (price * rentalUnits * feePercentage) / market.BASIS_POINTS();
 
         console2.log("Base price:", price);
         console2.log("Rental units:", rentalUnits);
@@ -968,6 +971,9 @@ contract NFTMarketTest is Test, IERC20Errors {
         assertEq(duration, rentDuration);
         assertEq(rentalPrice, expectedRentPrice);
         assertEq(nftContract.ownerOf(tokenId), address(market));
+
+        // verify seller received the rent payment
+        assertEq(seller.balance, expectedRentPrice);
     }
 }
 

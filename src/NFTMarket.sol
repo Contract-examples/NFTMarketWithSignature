@@ -44,6 +44,11 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     error NotOriginalOwner();
     error RentStillActive(uint256 remainingTime);
     error CanRetrieveNFT();
+    error InvalidRentalConfig();
+    error InvalidMinDuration();
+    error InvalidMaxDuration();
+    error InvalidFeePercentage();
+    error MinDurationGreaterThanMax();
 
     // custom events
     event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
@@ -61,6 +66,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         uint256 price;
     }
 
+    // signed listing
     struct SignedListing {
         address seller;
         uint256 price;
@@ -68,11 +74,19 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         bool isValid;
     }
 
+    // rent info
     struct RentInfo {
         address renter;
         uint256 startTime;
         uint256 duration;
         uint256 price;
+    }
+
+    // rental config
+    struct RentalConfig {
+        uint256 minDuration; // minimum rental duration
+        uint256 maxDuration; // maximum rental duration
+        uint256 feePercentage; // rental fee percentage (basis points: 1% = 100)
     }
 
     // this is our payment token
@@ -85,6 +99,8 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     IERC721 public immutable nftContract;
     // this is our whitelist signer
     address public whitelistSigner;
+    // rental config
+    RentalConfig public rentalConfig;
 
     // this is our listing mapping [tokenId => Listing]
     mapping(uint256 => Listing) public listings;
@@ -92,8 +108,14 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     mapping(uint256 => RentInfo) public rentals;
     mapping(bytes32 => bool) public usedSignatures;
 
-    // rental unit
-    uint256 private constant RENTAL_UNIT = 1 hours;
+    // minimum rental duration
+    uint256 public constant MIN_RENTAL_DURATION = 1 hours;
+    // maximum rental duration
+    uint256 public constant MAX_RENTAL_DURATION = 365 days;
+    // basis points (100% = 10000)
+    uint256 public constant BASIS_POINTS = 10_000;
+    // default fee rate (10 = 0.1%)
+    uint256 public constant DEFAULT_FEE_RATE = 10;
 
     constructor(address _nftContract, address _paymentToken) Ownable(msg.sender) {
         nftContract = IERC721(_nftContract);
@@ -107,6 +129,43 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
 
         // default whitelist signer is the owner
         whitelistSigner = msg.sender;
+
+        // set default rental config
+        rentalConfig = RentalConfig({
+            minDuration: MIN_RENTAL_DURATION,
+            maxDuration: MAX_RENTAL_DURATION,
+            feePercentage: DEFAULT_FEE_RATE
+        });
+    }
+
+    // set the minimum rental duration
+    function setMinRentalDuration(uint256 _minDuration) external onlyOwner {
+        if (_minDuration == 0) {
+            revert InvalidMinDuration();
+        }
+        if (_minDuration >= rentalConfig.maxDuration) {
+            revert MinDurationGreaterThanMax();
+        }
+        rentalConfig.minDuration = _minDuration;
+    }
+
+    // set the maximum rental duration
+    function setMaxRentalDuration(uint256 _maxDuration) external onlyOwner {
+        if (_maxDuration == 0) {
+            revert InvalidMaxDuration();
+        }
+        if (rentalConfig.minDuration >= _maxDuration) {
+            revert MinDurationGreaterThanMax();
+        }
+        rentalConfig.maxDuration = _maxDuration;
+    }
+
+    // set the rental fee percentage
+    function setRentalFeePercentage(uint256 _feePercentage) external onlyOwner {
+        if (_feePercentage == 0 || _feePercentage > BASIS_POINTS) {
+            revert InvalidFeePercentage();
+        }
+        rentalConfig.feePercentage = _feePercentage;
     }
 
     // this is a function to set the whitelist signer
@@ -351,16 +410,14 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         if (!signedListing.isValid) revert NFTNotListed();
         if (signedListing.deadline < block.timestamp) revert SignatureExpired();
         if (signedListing.price == 0) revert PriceMustBeGreaterThanZero();
-        if (duration == 0) revert RentDurationMustBeGreaterThanZero();
-        // 1 year is the maximum rent duration
-        if (duration > 365 days) revert RentDurationTooLong();
+
+        if (duration < rentalConfig.minDuration) revert RentDurationMustBeGreaterThanZero();
+        if (duration > rentalConfig.maxDuration) revert RentDurationTooLong();
 
         if (rentals[tokenId].renter != address(0)) revert NFTAlreadyRented();
 
-        // get the rental units
-        uint256 rentalUnits = (duration + RENTAL_UNIT - 1) / RENTAL_UNIT;
-        // 1% of the price
-        uint256 rentPrice = (signedListing.price * rentalUnits) / 100;
+        uint256 rentalUnits = (duration + rentalConfig.minDuration - 1) / rentalConfig.minDuration;
+        uint256 rentPrice = (signedListing.price * rentalUnits * rentalConfig.feePercentage) / BASIS_POINTS;
 
         if (msg.value < rentPrice) revert InsufficientPayment();
 
