@@ -40,6 +40,10 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     error NFTAlreadyListed();
     error RentDurationMustBeGreaterThanZero();
     error RentDurationTooLong();
+    error NFTNotRentedYet();
+    error NotOriginalOwner();
+    error RentStillActive(uint256 remainingTime);
+    error CanRetrieveNFT();
 
     // custom events
     event NFTListed(uint256 indexed tokenId, address indexed seller, uint256 price);
@@ -403,6 +407,31 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         emit NFTRetrieved(tokenId, signedListing.seller);
     }
 
+    // check if the signed NFT can be retrieved
+    function canRetrieveSignedNFT(uint256 tokenId) external view {
+        RentInfo memory rental = rentals[tokenId];
+        SignedListing memory signedListing = signedListings[tokenId];
+
+        // check if the NFT is rented
+        if (rental.renter == address(0)) {
+            revert NFTNotRentedYet();
+        }
+
+        // check if the sender is the original owner
+        if (msg.sender != signedListing.seller) {
+            revert NotOriginalOwner();
+        }
+
+        // check if the rent is expired
+        if (block.timestamp < rental.startTime + rental.duration) {
+            uint256 remainingTime = rental.startTime + rental.duration - block.timestamp;
+            revert RentStillActive(remainingTime);
+        }
+
+        // if we get here, the NFT can be retrieved
+        revert CanRetrieveNFT();
+    }
+
     // get the active listings
     function getActiveListings() external view returns (uint256[] memory tokenIds, Listing[] memory activeListings) {
         // Cache the total supply to save gas
@@ -454,6 +483,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         }
     }
 
+    // indicate that the NFTMarket contract has received the NFT
     function onERC721Received(
         address operator,
         address from,
@@ -464,7 +494,6 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         override
         returns (bytes4)
     {
-        // indicate that the NFTMarket contract has received the NFT
         return IERC721Receiver.onERC721Received.selector;
     }
 }
