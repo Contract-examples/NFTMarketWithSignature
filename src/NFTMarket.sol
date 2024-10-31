@@ -40,10 +40,6 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     error NFTAlreadyListed();
     error RentDurationTooShort();
     error RentDurationTooLong();
-    error NFTNotRentedYet();
-    error NotOriginalOwner();
-    error RentStillActive(uint256 remainingTime);
-    error CanRetrieveNFT();
     error InvalidRentalConfig();
     error InvalidMinDuration();
     error InvalidMaxDuration();
@@ -58,20 +54,15 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     event WhitelistBuy(uint256 indexed tokenId, address indexed buyer, uint256 price);
     event NFTRented(uint256 indexed tokenId, address indexed renter, uint256 duration, uint256 price);
     event NFTRetrieved(uint256 indexed tokenId, address indexed seller);
-    event NFTListedWithSignature(uint256 indexed tokenId, address indexed seller, uint256 price, uint256 deadline);
+    event NFTListedWithSignature(
+        uint256 indexed tokenId, address indexed seller, uint256 price, uint256 deadline, bytes signature, bool isValid
+    );
+    event SignedListingCancelled(uint256 indexed tokenId, address indexed seller, bytes signature);
 
     // custom structs
     struct Listing {
         address seller;
         uint256 price;
-    }
-
-    // signed listing
-    struct SignedListing {
-        address seller;
-        uint256 price;
-        uint256 deadline;
-        bool isValid;
     }
 
     // rent info
@@ -102,11 +93,14 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     // rental config
     RentalConfig public rentalConfig;
 
-    // this is our listing mapping [tokenId => Listing]
+    // a mapping to record the listing info for each NFT
     mapping(uint256 => Listing) public listings;
-    mapping(uint256 => SignedListing) public signedListings;
+
+    // a mapping to record the rental info for each NFT
     mapping(uint256 => RentInfo) public rentals;
-    mapping(bytes32 => bool) public usedSignatures;
+
+    // a mapping to record the latest nonce for each NFT
+    mapping(uint256 => uint256) public tokenNonces;
 
     // minimum rental duration
     uint256 public constant MIN_RENTAL_DURATION = 1 hours;
@@ -376,44 +370,76 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         emit WhitelistBuy(tokenId, msg.sender, price);
     }
 
+    // create a message hash for the listing
+    function createListingMessage(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        uint256 nonce
+    )
+        public
+        view
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked(address(this), tokenId, price, deadline, nonce, block.chainid));
+    }
+
     // list an NFT with a signature
     function listWithSignature(uint256 tokenId, uint256 price, uint256 deadline, bytes memory signature) external {
-        // check deadline
         if (deadline < block.timestamp) revert SignatureExpired();
-
-        // check price
         if (price == 0) revert PriceMustBeGreaterThanZero();
 
-        // check if NFT is already listed (both regular and signed listings)
-        if (listings[tokenId].price > 0) revert NFTAlreadyListed();
-        if (signedListings[tokenId].isValid) revert NFTAlreadyListed();
+        // create a message hash for the listing
+        bytes32 messageHash = createListingMessage(tokenId, price, deadline, tokenNonces[tokenId]);
 
-        // create message hash
-        bytes32 messageHash = keccak256(abi.encodePacked(address(this), tokenId, price, deadline, block.chainid));
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        // recover the signer
         address signer = ethSignedMessageHash.recover(signature);
 
-        // the signer is not the owner of the NFT
         if (signer != nftContract.ownerOf(tokenId)) revert InvalidSignature();
 
-        // add the signed listing to the mapping
-        signedListings[tokenId] = SignedListing({ seller: signer, price: price, deadline: deadline, isValid: true });
+        // increase the nonce, making the previous signature invalid
+        tokenNonces[tokenId]++;
 
-        // emit the NFTListedWithSignature event
-        emit NFTListedWithSignature(tokenId, signer, price, deadline);
+        emit NFTListedWithSignature(tokenId, signer, price, deadline, signature, true);
+    }
+
+    // Cancel a signed listing
+    function cancelSignedListing(uint256 tokenId, bytes memory signature) external {
+        // Verify the caller is the NFT owner
+        if (msg.sender != nftContract.ownerOf(tokenId)) revert NotTheOwner();
+
+        // Emit the cancellation event
+        emit SignedListingCancelled(tokenId, msg.sender, signature);
     }
 
     // rent an NFT from signed listings
-    function rentSignedNFT(uint256 tokenId, uint256 duration) external payable {
-        SignedListing memory signedListing = signedListings[tokenId];
+    function rentSignedNFT(
+        uint256 tokenId,
+        uint256 duration,
+        uint256 price,
+        uint256 deadline,
+        bytes memory signature
+    )
+        external
+        payable
+    {
+        // check tokenNonces
+        if (tokenNonces[tokenId] == 0) revert NFTNotListed();
 
-        // check if the NFT is listed
-        if (!signedListing.isValid) revert NFTNotListed();
-        // check if the signature is expired
-        if (signedListing.deadline < block.timestamp) revert SignatureExpired();
-        // check if the price is greater than zero
-        if (signedListing.price == 0) revert PriceMustBeGreaterThanZero();
+        // verify the signature
+        bytes32 messageHash = createListingMessage(
+            tokenId,
+            price,
+            deadline,
+            tokenNonces[tokenId] - 1 // use the current nonce - 1, because the signature is based on the old nonce
+        );
+
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        address seller = ethSignedMessageHash.recover(signature);
+
+        // verify signature validity
+        if (seller != nftContract.ownerOf(tokenId)) revert InvalidSignature();
+        if (deadline < block.timestamp) revert SignatureExpired();
 
         // check time
         if (duration < rentalConfig.minDuration) revert RentDurationTooShort();
@@ -425,12 +451,12 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         // calculate the rental units
         uint256 rentalUnits = (duration + rentalConfig.minDuration - 1) / rentalConfig.minDuration;
         // calculate the rent price
-        uint256 rentPrice = (signedListing.price * rentalUnits * rentalConfig.feePercentage) / BASIS_POINTS;
+        uint256 rentPrice = (price * rentalUnits * rentalConfig.feePercentage) / BASIS_POINTS;
 
         if (msg.value < rentPrice) revert InsufficientPayment();
 
         // transfer the rent price to the seller
-        (bool success,) = signedListing.seller.call{ value: rentPrice }("");
+        (bool success,) = seller.call{ value: rentPrice }("");
         if (!success) revert TokenTransferFailed();
 
         // refund excess payment
@@ -444,13 +470,13 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
             RentInfo({ renter: msg.sender, startTime: block.timestamp, duration: duration, price: rentPrice });
 
         // transfer the NFT to the market contract
-        nftContract.safeTransferFrom(signedListing.seller, address(this), tokenId);
+        nftContract.safeTransferFrom(seller, address(this), tokenId);
 
         // emit the NFTRented event
         emit NFTRented(tokenId, msg.sender, duration, rentPrice);
     }
 
-    // retrieve a rented NFT (seller want to retrieve the rented NFT)
+    // retrieve a rented NFT
     function retrieveRentedSignedNFT(uint256 tokenId) external {
         RentInfo memory rental = rentals[tokenId];
         if (rental.renter == address(0)) revert RentNotAvailable();
@@ -458,94 +484,17 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         // check if the rent is expired
         if (block.timestamp < rental.startTime + rental.duration) revert RentNotExpired();
 
-        // check if the sender is the seller from signed listings
-        SignedListing memory signedListing = signedListings[tokenId];
-        if (msg.sender != signedListing.seller) revert NotTheOwner();
+        // check if the sender is the NFT owner
+        if (msg.sender != nftContract.ownerOf(tokenId)) revert NotTheOwner();
 
-        // return the NFT to the seller
-        nftContract.safeTransferFrom(address(this), signedListing.seller, tokenId);
+        // return the NFT to the owner
+        nftContract.safeTransferFrom(address(this), msg.sender, tokenId);
 
         // clear the rental info
         delete rentals[tokenId];
 
         // emit the NFTRetrieved event
-        emit NFTRetrieved(tokenId, signedListing.seller);
-    }
-
-    // check if the signed NFT can be retrieved
-    function canRetrieveSignedNFT(uint256 tokenId) external view {
-        RentInfo memory rental = rentals[tokenId];
-        SignedListing memory signedListing = signedListings[tokenId];
-
-        // check if the NFT is rented
-        if (rental.renter == address(0)) {
-            revert NFTNotRentedYet();
-        }
-
-        // check if the sender is the original owner
-        if (msg.sender != signedListing.seller) {
-            revert NotOriginalOwner();
-        }
-
-        // check if the rent is expired
-        if (block.timestamp < rental.startTime + rental.duration) {
-            uint256 remainingTime = rental.startTime + rental.duration - block.timestamp;
-            revert RentStillActive(remainingTime);
-        }
-
-        // if we get here, the NFT can be retrieved
-        revert CanRetrieveNFT();
-    }
-
-    // get the active listings
-    function getActiveListings() external view returns (uint256[] memory tokenIds, Listing[] memory activeListings) {
-        // Cache the total supply to save gas
-        uint256 totalSupply = IERC721Enumerable(address(nftContract)).totalSupply();
-
-        // Cache the current timestamp to save gas
-        uint256 currentTime = block.timestamp;
-
-        // Create dynamic arrays in memory
-        tokenIds = new uint256[](totalSupply);
-        activeListings = new Listing[](totalSupply);
-
-        // Track valid listings count
-        uint256 activeCount;
-
-        // Single loop to check both regular and signed listings
-        for (uint256 i; i < totalSupply;) {
-            // Cache storage reads
-            Listing memory regularListing = listings[i];
-            SignedListing memory signedListing = signedListings[i];
-
-            // Check if there's a valid listing
-            if (regularListing.price > 0) {
-                tokenIds[activeCount] = i;
-                activeListings[activeCount] = regularListing;
-                // disable overflow check
-                unchecked {
-                    ++activeCount;
-                }
-            } else if (signedListing.isValid && signedListing.deadline > currentTime) {
-                tokenIds[activeCount] = i;
-                activeListings[activeCount] = Listing(signedListing.seller, signedListing.price);
-                // disable overflow check
-                unchecked {
-                    ++activeCount;
-                }
-            }
-
-            // disable overflow check
-            unchecked {
-                ++i;
-            }
-        }
-
-        // Resize arrays to actual count
-        assembly {
-            mstore(tokenIds, activeCount)
-            mstore(activeListings, activeCount)
-        }
+        emit NFTRetrieved(tokenId, msg.sender);
     }
 
     // indicate that the NFTMarket contract has received the NFT
@@ -560,5 +509,49 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         returns (bytes4)
     {
         return IERC721Receiver.onERC721Received.selector;
+    }
+
+    // verify signed listing
+    function verifySignedListing(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        bytes memory signature
+    )
+        public
+        view
+        returns (bool isValid, address signer)
+    {
+        if (deadline < block.timestamp) return (false, address(0));
+
+        bytes32 messageHash = keccak256(abi.encodePacked(address(this), tokenId, price, deadline, block.chainid));
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        signer = ethSignedMessageHash.recover(signature);
+
+        return (signer == nftContract.ownerOf(tokenId), signer);
+    }
+
+    // check if the signature is the latest
+    function isLatestSignature(
+        uint256 tokenId,
+        uint256 price,
+        uint256 deadline,
+        bytes memory signature
+    )
+        public
+        view
+        returns (bool)
+    {
+        bytes32 messageHash = createListingMessage(
+            tokenId,
+            price,
+            deadline,
+            tokenNonces[tokenId] - 1 // check if it's the previous nonce
+        );
+
+        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        address signer = ethSignedMessageHash.recover(signature);
+
+        return signer == nftContract.ownerOf(tokenId);
     }
 }
