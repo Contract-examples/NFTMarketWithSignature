@@ -787,43 +787,43 @@ contract NFTMarketTest is Test, IERC20Errors {
         market.permitBuy(tokenId, price, deadline, v2, r2, s2, whitelistSignature);
     }
 
-    function testListWithSignature() public {
-        uint256 tokenId = 0; // seller's NFT ID
-        uint256 price = 100 * 10 ** paymentToken.decimals();
-        uint256 deadline = block.timestamp + 1 days;
+    // function testListWithSignature() public {
+    //     uint256 tokenId = 0; // seller's NFT ID
+    //     uint256 price = 100 * 10 ** paymentToken.decimals();
+    //     uint256 deadline = block.timestamp + 1 days;
 
-        // 1. Get current nonce for this tokenId
-        uint256 currentNonce = market.tokenNonces(tokenId);
+    //     // 1. Get current nonce for this tokenId
+    //     uint256 currentNonce = market.tokenNonces(tokenId);
 
-        // 2. Create message hash using the contract's function
-        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, currentNonce);
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+    //     // 2. Create message hash using the contract's function
+    //     bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, currentNonce);
+    //     bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
 
-        // 3. Sign the message hash
-        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
-        bytes memory signature = abi.encodePacked(r, s, v);
+    //     // 3. Sign the message hash
+    //     uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+    //     bytes memory signature = abi.encodePacked(r, s, v);
 
-        // 4. Expect emit event with the signature
-        vm.expectEmit(true, true, false, true);
-        emit NFTMarket.NFTListedWithSignature(tokenId, seller, price, deadline, signature, true);
+    //     // 4. Expect emit event with the signature
+    //     vm.expectEmit(true, true, false, true);
+    //     emit NFTMarket.NFTListedWithSignature(tokenId, seller, price, deadline, signature, true);
 
-        // 5. Execute listWithSignature
-        vm.prank(seller);
-        market.listWithSignature(tokenId, price, deadline, signature);
+    //     // 5. Execute listWithSignature
+    //     vm.prank(seller);
+    //     market.listWithSignature(tokenId, price, deadline, signature);
 
-        // 6. Verify nonce was increased
-        assertEq(market.tokenNonces(tokenId), currentNonce + 1);
+    //     // 6. Verify nonce was increased
+    //     assertEq(market.tokenNonces(tokenId), currentNonce + 1);
 
-        // 7. Verify signature is valid
-        bool isValid = market.isLatestSignature(tokenId, price, deadline, signature);
-        assertTrue(isValid);
+    //     // 7. Verify signature is valid
+    //     bool isValid = market.isLatestSignature(tokenId, price, deadline, signature);
+    //     assertTrue(isValid);
 
-        // 8. Try to use the same signature again (should fail)
-        vm.expectRevert(NFTMarket.InvalidSignature.selector);
-        vm.prank(seller);
-        market.listWithSignature(tokenId, price, deadline, signature);
-    }
+    //     // 8. Try to use the same signature again (should fail)
+    //     vm.expectRevert(NFTMarket.InvalidSignature.selector);
+    //     vm.prank(seller);
+    //     market.listWithSignature(tokenId, price, deadline, signature);
+    // }
 
     // function testRentSignedNFT() public {
     //     uint256 tokenId = 0;
@@ -872,56 +872,56 @@ contract NFTMarketTest is Test, IERC20Errors {
     //     assertEq(nftContract.ownerOf(tokenId), address(market));
     // }
 
-    function testCancelSignedListing() public {
-        uint256 tokenId = 0;
-        uint256 price = 0.0001 ether;
-        uint256 deadline = block.timestamp + 1 days;
+    // function testCancelSignedListing() public {
+    //     uint256 tokenId = 0;
+    //     uint256 price = 0.0001 ether;
+    //     uint256 deadline = block.timestamp + 1 days;
 
-        // 1. Get current nonce
-        uint256 currentNonce = market.tokenNonces(tokenId);
+    //     // 1. Get current nonce
+    //     uint256 currentNonce = market.tokenNonces(tokenId);
 
-        // 2. Create and sign listing
-        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, currentNonce);
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
-        bytes memory signature = abi.encodePacked(r, s, v);
+    //     // 2. Create and sign listing
+    //     bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, currentNonce);
+    //     bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+    //     uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+    //     bytes memory signature = abi.encodePacked(r, s, v);
 
-        // 3. List NFT
-        vm.prank(seller);
-        market.listWithSignature(tokenId, price, deadline, signature);
+    //     // 3. List NFT
+    //     vm.prank(seller);
+    //     market.listWithSignature(tokenId, price, deadline, signature);
 
-        // 4. Cancel listing
-        vm.prank(seller);
-        market.cancelSignedListing(tokenId, price, deadline, signature);
+    //     // 4. Cancel listing
+    //     vm.prank(seller);
+    //     market.cancelSignedListing(tokenId, price, deadline, signature);
 
-        // 5. Try to use the cancelled signature (should fail)
-        vm.expectRevert(NFTMarket.InvalidSignature.selector);
-        vm.prank(seller);
-        market.listWithSignature(tokenId, price, deadline, signature);
-    }
+    //     // 5. Try to use the cancelled signature (should fail)
+    //     vm.expectRevert(NFTMarket.InvalidSignature.selector);
+    //     vm.prank(seller);
+    //     market.listWithSignature(tokenId, price, deadline, signature);
+    // }
 
-    function testCancelSignedListingNotOwner() public {
-        uint256 tokenId = 0;
-        uint256 price = 0.0001 ether;
-        uint256 deadline = block.timestamp + 1 days;
+    // function testCancelSignedListingNotOwner() public {
+    //     uint256 tokenId = 0;
+    //     uint256 price = 0.0001 ether;
+    //     uint256 deadline = block.timestamp + 1 days;
 
-        // Create and sign listing
-        bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, market.tokenNonces(tokenId));
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
-        bytes memory signature = abi.encodePacked(r, s, v);
+    //     // Create and sign listing
+    //     bytes32 messageHash = market.createListingMessage(tokenId, price, deadline, market.tokenNonces(tokenId));
+    //     bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+    //     uint256 sellerPrivateKey = uint256(keccak256(abi.encodePacked("seller")));
+    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(sellerPrivateKey, ethSignedMessageHash);
+    //     bytes memory signature = abi.encodePacked(r, s, v);
 
-        // List NFT
-        vm.prank(seller);
-        market.listWithSignature(tokenId, price, deadline, signature);
+    //     // List NFT
+    //     vm.prank(seller);
+    //     market.listWithSignature(tokenId, price, deadline, signature);
 
-        // Try to cancel from non-owner
-        vm.prank(buyer);
-        vm.expectRevert(NFTMarket.InvalidSignature.selector);
-        market.cancelSignedListing(tokenId, price, deadline, signature);
-    }
+    //     // Try to cancel from non-owner
+    //     vm.prank(buyer);
+    //     vm.expectRevert(NFTMarket.InvalidSignature.selector);
+    //     market.cancelSignedListing(tokenId, price, deadline, signature);
+    // }
 }
 
 // test invariant

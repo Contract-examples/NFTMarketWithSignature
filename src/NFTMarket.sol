@@ -54,9 +54,6 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     event WhitelistBuy(uint256 indexed tokenId, address indexed buyer, uint256 price);
     event NFTRented(uint256 indexed tokenId, address indexed renter, uint256 duration, uint256 price);
     event NFTRetrieved(uint256 indexed tokenId, address indexed seller);
-    event NFTListedWithSignature(
-        uint256 indexed tokenId, address indexed seller, uint256 price, uint256 deadline, bytes signature, bool isValid
-    );
     event SignedListingCancelled(uint256 indexed tokenId, address indexed seller, bytes signature);
 
     // custom structs
@@ -98,9 +95,6 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
 
     // a mapping to record the rental info for each NFT
     mapping(uint256 => RentInfo) public rentals;
-
-    // a mapping to record the latest nonce for each NFT
-    mapping(uint256 => uint256) public tokenNonces;
 
     // minimum rental duration
     uint256 public constant MIN_RENTAL_DURATION = 1 hours;
@@ -371,36 +365,8 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     }
 
     // create a message hash for the listing
-    function createListingMessage(
-        uint256 tokenId,
-        uint256 price,
-        uint256 deadline,
-        uint256 nonce
-    )
-        public
-        view
-        returns (bytes32)
-    {
-        return keccak256(abi.encodePacked(address(this), tokenId, price, deadline, nonce, block.chainid));
-    }
-
-    // list an NFT with a signature
-    function listWithSignature(uint256 tokenId, uint256 price, uint256 deadline, bytes memory signature) external {
-        if (deadline < block.timestamp) revert SignatureExpired();
-        if (price == 0) revert PriceMustBeGreaterThanZero();
-
-        // create a message hash for the listing
-        bytes32 messageHash = createListingMessage(tokenId, price, deadline, tokenNonces[tokenId]);
-
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        address signer = ethSignedMessageHash.recover(signature);
-
-        if (signer != nftContract.ownerOf(tokenId)) revert InvalidSignature();
-
-        // increase the nonce, making the previous signature invalid
-        tokenNonces[tokenId]++;
-
-        emit NFTListedWithSignature(tokenId, signer, price, deadline, signature, true);
+    function createListingMessage(uint256 tokenId, uint256 price, uint256 deadline) public view returns (bytes32) {
+        return keccak256(abi.encodePacked(address(this), tokenId, price, deadline, block.chainid));
     }
 
     // a internal function to handle the common validation logic
@@ -420,12 +386,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         }
 
         // Verify signature validity
-        bytes32 messageHash = createListingMessage(
-            tokenId,
-            price,
-            deadline,
-            tokenNonces[tokenId] - 1 // use the current nonce - 1
-        );
+        bytes32 messageHash = createListingMessage(tokenId, price, deadline);
 
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         address signer = ethSignedMessageHash.recover(signature);
@@ -469,25 +430,13 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         external
         payable
     {
-        // check tokenNonces
-        if (tokenNonces[tokenId] == 0) revert NFTNotListed();
+        // 验证签名
+        (bool isValid, address seller) = verifySignedListing(tokenId, price, deadline, signature);
 
-        // verify the signature
-        bytes32 messageHash = createListingMessage(
-            tokenId,
-            price,
-            deadline,
-            tokenNonces[tokenId] - 1 // use the current nonce - 1, because the signature is based on the old nonce
-        );
-
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
-        address seller = ethSignedMessageHash.recover(signature);
-
-        // verify signature validity
-        if (seller != nftContract.ownerOf(tokenId)) revert InvalidSignature();
+        if (!isValid) revert InvalidSignature();
         if (deadline < block.timestamp) revert SignatureExpired();
 
-        // check time
+        // check the rental duration
         if (duration < rentalConfig.minDuration) revert RentDurationTooShort();
         if (duration > rentalConfig.maxDuration) revert RentDurationTooLong();
 
@@ -496,7 +445,6 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
 
         // calculate the rental units
         uint256 rentalUnits = (duration + rentalConfig.minDuration - 1) / rentalConfig.minDuration;
-        // calculate the rent price
         uint256 rentPrice = (price * rentalUnits * rentalConfig.feePercentage) / BASIS_POINTS;
 
         if (msg.value < rentPrice) revert InsufficientPayment();
@@ -505,7 +453,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         (bool success,) = seller.call{ value: rentPrice }("");
         if (!success) revert TokenTransferFailed();
 
-        // refund excess payment
+        // refund the excess ETH
         if (msg.value > rentPrice) {
             (bool refundSuccess,) = msg.sender.call{ value: msg.value - rentPrice }("");
             if (!refundSuccess) revert TokenTransferFailed();
@@ -515,7 +463,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         rentals[tokenId] =
             RentInfo({ renter: msg.sender, startTime: block.timestamp, duration: duration, price: rentPrice });
 
-        // transfer the NFT to the market contract
+        // transfer NFT to the market contract
         nftContract.safeTransferFrom(seller, address(this), tokenId);
 
         // emit the NFTRented event
@@ -570,7 +518,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
     {
         if (deadline < block.timestamp) return (false, address(0));
 
-        bytes32 messageHash = keccak256(abi.encodePacked(address(this), tokenId, price, deadline, block.chainid));
+        bytes32 messageHash = createListingMessage(tokenId, price, deadline);
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         signer = ethSignedMessageHash.recover(signature);
 
@@ -588,12 +536,7 @@ contract NFTMarket is IERC20Receiver, IERC721Receiver, Ownable {
         view
         returns (bool)
     {
-        bytes32 messageHash = createListingMessage(
-            tokenId,
-            price,
-            deadline,
-            tokenNonces[tokenId] - 1 // check if it's the previous nonce
-        );
+        bytes32 messageHash = createListingMessage(tokenId, price, deadline);
 
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
         address signer = ethSignedMessageHash.recover(signature);
